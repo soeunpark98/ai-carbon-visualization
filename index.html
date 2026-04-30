@@ -4,535 +4,120 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D3 Visualization Experiments</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            page:    '#0f1117',
+            surface: '#1e2130',
+            rim:     '#2e3448',
+            muted:   '#576070',
+            dim:     '#3a4050',
+            soft:    '#c8cfd9',
+            body:    '#e8eaf0',
+          },
+          fontFamily: {
+            sans: ['"Segoe UI"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
   <script src="d3.v7.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: #0f1117;
-      color: #e8eaf0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 60px 20px 80px;
-    }
-
-    /* ── Page header ── */
-    .page-header {
-      text-align: center;
-      margin-bottom: 64px;
-      max-width: 700px;
-    }
-
-    .page-header h1 {
-      font-size: 1.1rem;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #3a4050;
-      margin-bottom: 14px;
-    }
-
-    .page-header .page-title {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* ── Experiment block ── */
-    .experiment {
-      width: 100%;
-      max-width: 900px;
-      margin-bottom: 80px;
-    }
-
-    .experiment-header {
-      display: flex;
-      align-items: baseline;
-      gap: 18px;
-      margin-bottom: 28px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid #1e2130;
-    }
-
-    .exp-number {
-      font-size: 3rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      color: #1e2130;
-      line-height: 1;
-      min-width: 68px;
-      text-align: right;
-      user-select: none;
-    }
-
-    .exp-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .exp-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #c8cfd9;
-      letter-spacing: -0.01em;
-    }
-
-    .exp-desc {
-      font-size: 0.875rem;
-      color: #576070;
-      line-height: 1.5;
-      max-width: 560px;
-    }
-
-    /* ── Chart wrapper ── */
-    .chart-wrap {
-      width: 100%;
-    }
-
-    svg {
-      width: 100%;
-      overflow: visible;
-    }
-
-    /* ── Shared chart styles ── */
+    /* SVG class selectors applied by D3 — cannot use Tailwind */
     .bar-bg   { fill: #1e2130; }
-    .bar-fill { }
-
-    .activity-label {
-      font-size: 13px;
-      fill: #c8cfd9;
-      dominant-baseline: middle;
-      text-anchor: end;
-    }
-
-    .value-label {
-      font-size: 11.5px;
-      fill: #8b95a8;
-      dominant-baseline: middle;
-    }
-
+    .activity-label { font-size: 13px; fill: #c8cfd9; dominant-baseline: middle; text-anchor: end; }
+    .value-label    { font-size: 11.5px; fill: #8b95a8; dominant-baseline: middle; }
     .axis path, .axis line { stroke: #2a2f42; }
-    .axis text { fill: #576070; font-size: 11px; }
+    .axis text  { fill: #576070; font-size: 11px; }
     .axis .domain { display: none; }
-
-    .grid line { stroke: #1e2130; stroke-dasharray: 3 4; }
+    .grid line  { stroke: #1e2130; stroke-dasharray: 3 4; }
     .grid .domain { display: none; }
-
-    /* ── Tooltip ── */
-    #tooltip {
-      position: fixed;
-      pointer-events: none;
-      background: #1e2130;
-      border: 1px solid #2e3448;
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 13px;
-      max-width: 280px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      opacity: 0;
-      transition: opacity 0.15s ease;
-      z-index: 10;
-    }
-
-    #tooltip .tt-activity {
-      font-weight: 600;
-      font-size: 14px;
-      color: #e8eaf0;
-      margin-bottom: 8px;
-    }
-
-    #tooltip .tt-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      margin-top: 5px;
-    }
-
-    #tooltip .tt-label { color: #576070; white-space: nowrap; }
-
-    #tooltip .tt-val {
-      color: #a8edea;
-      font-weight: 500;
-      text-align: right;
-    }
-
-    #tooltip .tt-anchor {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #2e3448;
-      color: #8b95a8;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    #tooltip .tt-anchor span { color: #fed6e3; font-weight: 500; }
-
-    /* ── Legend ── */
-    .legend {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      margin-top: 20px;
-      font-size: 12px;
-      color: #576070;
-      flex-wrap: wrap;
-    }
-
-    .legend-item { display: flex; align-items: center; gap: 7px; }
-
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
-
-    .legend-range {
-      width: 28px; height: 3px; border-radius: 2px; position: relative;
-    }
-
-    .legend-range::before, .legend-range::after {
-      content: ''; position: absolute;
-      width: 2px; height: 8px; top: -2.5px; background: #8b95a8;
-    }
-    .legend-range::before { left: 0; }
-    .legend-range::after  { right: 0; }
-
-    /* ── Source line ── */
-    .exp-source {
-      margin-top: 14px;
-      font-size: 11px;
-      color: #2e3448;
-    }
-
-    /* ── Divider between experiments ── */
-    .exp-divider {
-      width: 100%;
-      max-width: 900px;
-      height: 1px;
-      background: linear-gradient(to right, transparent, #1e2130 20%, #1e2130 80%, transparent);
-      margin-bottom: 80px;
-    }
   </style>
 </head>
-<body>
 
-<div class="page-header">
-  <h1>HCDE 511</h1>
-  <div class="page-title">D3 Visualization Experiments</div>
-</div>
+<body class="bg-page text-body font-sans min-h-screen flex flex-col items-center px-5 py-16">
 
-<!-- ═══════════════════════════════════════════════
-     Experiment 01
-═══════════════════════════════════════════════ -->
-<section class="experiment" id="exp-01">
-  <div class="experiment-header">
-    <div class="exp-number">01</div>
-    <div class="exp-meta">
-      <div class="exp-title">Carbon Cost of Digital Activities</div>
-      <div class="exp-desc">
-        Estimated CO₂ equivalent emissions per single action — from a Visa swipe to a Bitcoin transaction.
-        Log scale reveals orders-of-magnitude differences. Hover for real-world anchors.
+  <!-- Page header -->
+  <header class="text-center mb-20 max-w-2xl">
+    <p class="text-[11px] tracking-[0.2em] uppercase text-dim mb-3">HCDE 511</p>
+    <h1 class="text-[2rem] font-bold tracking-tight bg-gradient-to-br from-[#a8edea] to-[#fed6e3] bg-clip-text text-transparent">
+      D3 Visualization Experiments
+    </h1>
+  </header>
+
+  <!-- ── Experiment 01 ─────────────────────────────────── -->
+  <section class="w-full max-w-[900px] mb-24" id="exp-01">
+    <div class="flex items-baseline gap-5 mb-7 pb-5 border-b border-surface">
+      <span class="text-[3rem] font-extrabold text-surface leading-none select-none min-w-[68px] text-right">01</span>
+      <div>
+        <p class="text-xl font-semibold text-soft tracking-tight">Carbon Cost of Digital Activities</p>
+        <p class="text-sm text-muted mt-1 leading-relaxed max-w-lg">
+          Estimated CO₂ equivalent emissions per single action — from a Visa swipe to a Bitcoin
+          transaction. Log scale reveals orders-of-magnitude differences. Hover for real-world anchors.
+        </p>
       </div>
     </div>
-  </div>
 
-  <div class="chart-wrap" id="chart-01"></div>
+    <div id="chart-01"></div>
 
-  <div class="legend">
-    <div class="legend-item">
-      <div class="legend-dot" style="background:#a8edea"></div>
-      <span>Point estimate</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-range" style="background:#8b95a8"></div>
-      <span>Reported range</span>
-    </div>
-  </div>
-
-  <div class="exp-source">Sources: Google Sustainability Report, IEA, published AI energy estimates. Values are approximate.</div>
-</section>
-
-<!-- ═══════════════════════════════════════════════
-     Experiment 02
-═══════════════════════════════════════════════ -->
-<div class="exp-divider"></div>
-
-<section class="experiment" id="exp-02">
-  <div class="experiment-header">
-    <div class="exp-number">02</div>
-    <div class="exp-meta">
-      <div class="exp-title">Scale at a Glance</div>
-      <div class="exp-desc">
-        Same data, reframed as an annotated dot plot. Human-world comparisons are always visible —
-        above each dot is the activity, below is what that carbon actually feels like.
+    <!-- Legend -->
+    <div class="flex items-center gap-6 mt-5 text-xs text-muted flex-wrap">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#a8edea] inline-block"></span>
+        Point estimate
+      </div>
+      <div class="flex items-center gap-2">
+        <svg width="28" height="10" class="overflow-visible">
+          <line x1="0" y1="5" x2="28" y2="5" stroke="#8b95a8" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="0"  y1="1" x2="0"  y2="9" stroke="#8b95a8" stroke-width="2"/>
+          <line x1="28" y1="1" x2="28" y2="9" stroke="#8b95a8" stroke-width="2"/>
+        </svg>
+        Reported range
       </div>
     </div>
+
+    <p class="mt-3.5 text-[11px] text-rim">
+      Sources: Google Sustainability Report, IEA, published AI energy estimates. Values are approximate.
+    </p>
+  </section>
+
+  <!-- divider -->
+  <div class="w-full max-w-[900px] h-px bg-gradient-to-r from-transparent via-surface to-transparent mb-24"></div>
+
+  <!-- ── Experiment 02 ─────────────────────────────────── -->
+  <section class="w-full max-w-[900px] mb-24" id="exp-02">
+    <div class="flex items-baseline gap-5 mb-7 pb-5 border-b border-surface">
+      <span class="text-[3rem] font-extrabold text-surface leading-none select-none min-w-[68px] text-right">02</span>
+      <div>
+        <p class="text-xl font-semibold text-soft tracking-tight">Scale at a Glance</p>
+        <p class="text-sm text-muted mt-1 leading-relaxed max-w-lg">
+          Same data, reframed as an annotated dot plot. Human-world comparisons are always
+          visible — above each dot is the activity, below is what that carbon actually feels like.
+        </p>
+      </div>
+    </div>
+
+    <div id="chart-02"></div>
+
+    <p class="mt-3.5 text-[11px] text-rim">
+      Sources: Google Sustainability Report, IEA, published AI energy estimates. Values are approximate.
+    </p>
+  </section>
+
+  <!-- Add experiments below this line -->
+
+  <!-- Shared tooltip -->
+  <div id="tooltip"
+    class="fixed pointer-events-none bg-surface border border-rim rounded-xl px-4 py-3.5
+           text-[13px] max-w-[280px] shadow-[0_8px_32px_rgba(0,0,0,0.5)]
+           opacity-0 transition-opacity duration-150 z-10">
   </div>
-  <div class="chart-wrap" id="chart-02"></div>
-  <div class="exp-source">Sources: Google Sustainability Report, IEA, published AI energy estimates. Values are approximate.</div>
-</section>
 
-<!-- Add more experiments below this line -->
-
-<div id="tooltip"></div>
-
-<script>
-// ══════════════════════════════════════════════════════════════════════════════
-// Experiment 01 — Carbon Cost of Digital Activities
-// ══════════════════════════════════════════════════════════════════════════════
-(function() {
-  const rawData = [
-    { activity: "Visa transaction",          min: 0.00045, max: 0.00045, anchor: "invisible to human senses",      display: "0.00045 g" },
-    { activity: "Gemini query",              min: 0.03,    max: 0.03,    anchor: "less than a Google search",      display: "0.03 g" },
-    { activity: "Google search",             min: 0.2,     max: 0.2,     anchor: "1 sec of LED bulb",              display: "0.2 g" },
-    { activity: "Plain email",               min: 0.3,     max: 0.3,     anchor: "1 sec of LED bulb",              display: "0.3 g" },
-    { activity: "ChatGPT query (low est.)",  min: 0.4,     max: 0.4,     anchor: "~2× a Google search",           display: "~0.4 g" },
-    { activity: "AI image generation",       min: 0.5,     max: 2.0,     anchor: "1–10 Google searches",          display: "0.5–2 g" },
-    { activity: "ChatGPT query (high est.)", min: 2.0,     max: 4.0,     anchor: "boiling 5 ml of water",         display: "2–4 g" },
-    { activity: "Netflix, 30 min",           min: 18,      max: 18,      anchor: "driving 100 m by car",          display: "~18 g" },
-    { activity: "Zoom, 1 hr HD",             min: 150,     max: 1000,    anchor: "driving 1–7 km by car",         display: "150–1,000 g" },
-    { activity: "Bitcoin transaction",       min: 400000,  max: 750000,  anchor: "driving 2,000–4,000 km by car", display: "400,000–750,000 g" },
-  ];
-
-  const margin = { top: 20, right: 130, bottom: 50, left: 210 };
-  const barHeight = 28, barPad = 18;
-  const containerEl = document.getElementById("chart-01");
-  const containerWidth = containerEl.clientWidth || 860;
-  const width  = containerWidth - margin.left - margin.right;
-  const innerH = rawData.length * (barHeight + barPad);
-  const totalH = innerH + margin.top + margin.bottom;
-
-  const svg = d3.select("#chart-01").append("svg")
-    .attr("viewBox", `0 0 ${containerWidth} ${totalH}`)
-    .attr("height", totalH);
-
-  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-
-  const xScale = d3.scaleLog().domain([0.0001, 1_200_000]).range([0, width]).nice();
-  const yScale = d3.scaleBand()
-    .domain(rawData.map(d => d.activity))
-    .range([0, innerH])
-    .paddingInner(0.45).paddingOuter(0.2);
-
-  const colorScale = d3.scaleLog()
-    .domain([0.0001, 1_200_000])
-    .range(["#a8edea", "#ff6b8a"]);
-
-  const tickVals = [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000, 100000, 1000000];
-
-  g.append("g").attr("class", "grid").attr("transform", `translate(0,${innerH})`)
-    .call(d3.axisBottom(xScale).tickValues(tickVals).tickSize(-innerH).tickFormat(""))
-    .selectAll(".tick line").attr("stroke", "#1e2130").attr("stroke-dasharray", "3 4");
-
-  g.append("g").attr("class", "axis").attr("transform", `translate(0,${innerH})`)
-    .call(d3.axisBottom(xScale).tickValues(tickVals).tickFormat(d =>
-      d >= 1000 ? d3.format(".2s")(d) + " g" : d3.format("~g")(d) + " g"
-    ))
-    .selectAll("text").attr("dy", "1.2em");
-
-  g.append("text")
-    .attr("x", width / 2).attr("y", innerH + 44)
-    .attr("text-anchor", "middle").attr("fill", "#3a4050").attr("font-size", "11px")
-    .text("CO₂e per activity (log scale)");
-
-  const rowG = g.selectAll(".row").data(rawData).join("g")
-    .attr("class", "row")
-    .attr("transform", d => `translate(0, ${yScale(d.activity)})`);
-
-  rowG.append("rect").attr("class", "bar-bg")
-    .attr("width", width).attr("height", yScale.bandwidth()).attr("rx", 4);
-
-  rowG.append("rect").attr("class", "bar-fill")
-    .attr("width", d => xScale(d.min) - xScale(0.0001))
-    .attr("height", yScale.bandwidth()).attr("rx", 4)
-    .attr("fill", d => colorScale(d.min)).attr("opacity", 0.85);
-
-  rowG.filter(d => d.min !== d.max).append("line")
-    .attr("x1", d => xScale(d.min)).attr("x2", d => xScale(d.max))
-    .attr("y1", yScale.bandwidth() / 2).attr("y2", yScale.bandwidth() / 2)
-    .attr("stroke", d => colorScale(d.max)).attr("stroke-width", 3).attr("stroke-linecap", "round");
-
-  rowG.filter(d => d.min !== d.max).append("line")
-    .attr("x1", d => xScale(d.max)).attr("x2", d => xScale(d.max))
-    .attr("y1", yScale.bandwidth() * 0.2).attr("y2", yScale.bandwidth() * 0.8)
-    .attr("stroke", d => colorScale(d.max)).attr("stroke-width", 2.5).attr("stroke-linecap", "round");
-
-  rowG.append("text").attr("class", "value-label")
-    .attr("x", d => xScale(d.max) + 8).attr("y", yScale.bandwidth() / 2)
-    .text(d => d.display);
-
-  g.selectAll(".activity-label").data(rawData).join("text")
-    .attr("class", "activity-label")
-    .attr("x", -12).attr("y", d => yScale(d.activity) + yScale.bandwidth() / 2)
-    .text(d => d.activity);
-
-  const tooltip = d3.select("#tooltip");
-
-  rowG.append("rect")
-    .attr("width", width).attr("height", yScale.bandwidth()).attr("fill", "transparent")
-    .on("mousemove", function(event, d) {
-      const [mx, my] = d3.pointer(event, document.body);
-      tooltip.style("opacity", 1)
-        .style("left", (mx + 18) + "px").style("top", (my - 10) + "px")
-        .html(`
-          <div class="tt-activity">${d.activity}</div>
-          <div class="tt-row"><span class="tt-label">CO₂e</span><span class="tt-val">${d.display}</span></div>
-          ${d.min !== d.max ? `
-          <div class="tt-row"><span class="tt-label">Low</span><span class="tt-val">${d3.format(",.4~g")(d.min)} g</span></div>
-          <div class="tt-row"><span class="tt-label">High</span><span class="tt-val">${d3.format(",.4~g")(d.max)} g</span></div>` : ""}
-          <div class="tt-anchor">Real-world scale: <span>${d.anchor}</span></div>
-        `);
-    })
-    .on("mouseleave", () => tooltip.style("opacity", 0));
-
-  rowG.on("mouseenter", function() { d3.select(this).select(".bar-fill").attr("opacity", 1); })
-      .on("mouseleave", function() { d3.select(this).select(".bar-fill").attr("opacity", 0.85); });
-})();
-
-// ══════════════════════════════════════════════════════════════════════════════
-// Experiment 02 — Scale at a Glance (annotated dot plot)
-// ══════════════════════════════════════════════════════════════════════════════
-(function() {
-  // labelH = how far above axis the activity label floats
-  // anchorH = how far below axis the human anchor floats
-  const data = [
-    { activity: "Visa transaction",  min: 0.00045, max: 0.00045, co2: "0.00045 g",   anchor: "invisible to senses",   emoji: "🫥", labelH: 150, anchorH: 80  },
-    { activity: "Gemini query",      min: 0.03,    max: 0.03,    co2: "0.03 g",      anchor: "< a Google search",     emoji: "🔍", labelH: 95,  anchorH: 55  },
-    { activity: "Google search",     min: 0.2,     max: 0.2,     co2: "0.2 g",       anchor: "≈ 1 sec, LED bulb",     emoji: "💡", labelH: 160, anchorH: 100 },
-    { activity: "Plain email",       min: 0.3,     max: 0.3,     co2: "0.3 g",       anchor: "same as Google search", emoji: "💡", labelH: 75,  anchorH: 65  },
-    { activity: "ChatGPT (low)",     min: 0.4,     max: 0.4,     co2: "~0.4 g",      anchor: "2× Google search",      emoji: "🔍🔍", labelH: 130, anchorH: 115 },
-    { activity: "AI image gen.",     min: 0.5,     max: 2.0,     co2: "0.5–2 g",     anchor: "1–10 Google searches",  emoji: "🖼️", labelH: 65,  anchorH: 75  },
-    { activity: "ChatGPT (high)",    min: 2.0,     max: 4.0,     co2: "2–4 g",       anchor: "boils 5 ml water",      emoji: "♨️", labelH: 115, anchorH: 55  },
-    { activity: "Netflix 30 min",    min: 18,      max: 18,      co2: "~18 g",       anchor: "drives 100 m by car",   emoji: "🚗", labelH: 155, anchorH: 95  },
-    { activity: "Zoom 1 hr HD",      min: 150,     max: 1000,    co2: "150–1k g",    anchor: "drives 1–7 km by car",  emoji: "🛣️", labelH: 90,  anchorH: 60  },
-    { activity: "Bitcoin tx",        min: 400000,  max: 750000,  co2: "400k–750k g", anchor: "drives 2k–4k km",       emoji: "🌍", labelH: 150, anchorH: 85  },
-  ];
-
-  data.forEach(d => {
-    d.dotVal = d.min === d.max ? d.min : Math.exp((Math.log(d.min) + Math.log(d.max)) / 2);
-  });
-
-  const containerEl = document.getElementById("chart-02");
-  const containerWidth = containerEl.clientWidth || 860;
-  const mL = 50, mR = 50;
-  const width = containerWidth - mL - mR;
-  const axisY = 185;
-  const totalH = axisY + 200;
-
-  const svg = d3.select("#chart-02").append("svg")
-    .attr("viewBox", `0 0 ${containerWidth} ${totalH}`)
-    .attr("height", totalH);
-
-  // Glow filter
-  const defs = svg.append("defs");
-  const f = defs.append("filter").attr("id", "glow02").attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
-  f.append("feGaussianBlur").attr("stdDeviation", "4").attr("result", "blur");
-  const fm = f.append("feMerge");
-  fm.append("feMergeNode").attr("in", "blur");
-  fm.append("feMergeNode").attr("in", "SourceGraphic");
-
-  const g = svg.append("g").attr("transform", `translate(${mL},0)`);
-
-  const xScale = d3.scaleLog().domain([0.00005, 2_500_000]).range([0, width]);
-  const colorScale = d3.scaleLog().domain([0.00005, 2_500_000]).range(["#a8edea", "#ff6b8a"]);
-  const rScale = d3.scaleLog().domain([0.0001, 1_000_000]).range([4, 11]).clamp(true);
-
-  // Axis line
-  g.append("line")
-    .attr("x1", 0).attr("x2", width)
-    .attr("y1", axisY).attr("y2", axisY)
-    .attr("stroke", "#2a2f42").attr("stroke-width", 1.5);
-
-  // Tick marks + labels
-  const tickVals = [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000, 100000, 1000000];
-  tickVals.forEach(v => {
-    const x = xScale(v);
-    g.append("line")
-      .attr("x1", x).attr("x2", x)
-      .attr("y1", axisY - 5).attr("y2", axisY + 5)
-      .attr("stroke", "#2a2f42");
-    g.append("text")
-      .attr("x", x).attr("y", axisY + 148)
-      .attr("text-anchor", "middle").attr("fill", "#3a4050").attr("font-size", "10px")
-      .text(v >= 1000 ? d3.format(".0s")(v) : d3.format("~g")(v));
-  });
-  g.append("text")
-    .attr("x", width / 2).attr("y", axisY + 162)
-    .attr("text-anchor", "middle").attr("fill", "#2a2f42").attr("font-size", "10px")
-    .text("CO₂e (grams, log scale)");
-
-  // Per-item rendering
-  data.forEach(d => {
-    const cx    = xScale(d.dotVal);
-    const color = colorScale(d.dotVal);
-    const r     = rScale(d.dotVal);
-    const isRange = d.min !== d.max;
-
-    // Range bar
-    if (isRange) {
-      g.append("line")
-        .attr("x1", xScale(d.min)).attr("x2", xScale(d.max))
-        .attr("y1", axisY).attr("y2", axisY)
-        .attr("stroke", color).attr("stroke-width", 2.5).attr("stroke-linecap", "round").attr("opacity", 0.45);
-      [d.min, d.max].forEach(v =>
-        g.append("line")
-          .attr("x1", xScale(v)).attr("x2", xScale(v))
-          .attr("y1", axisY - 5).attr("y2", axisY + 5)
-          .attr("stroke", color).attr("stroke-width", 2).attr("opacity", 0.55)
-      );
-    }
-
-    // Dashed leader: dot → activity label
-    g.append("line")
-      .attr("x1", cx).attr("x2", cx)
-      .attr("y1", axisY - r - 2).attr("y2", axisY - d.labelH + 24)
-      .attr("stroke", color).attr("stroke-width", 1)
-      .attr("stroke-dasharray", "3 3").attr("opacity", 0.35);
-
-    // Dashed leader: dot → anchor
-    g.append("line")
-      .attr("x1", cx).attr("x2", cx)
-      .attr("y1", axisY + r + 2).attr("y2", axisY + d.anchorH - 14)
-      .attr("stroke", "#ffb8c6").attr("stroke-width", 1)
-      .attr("stroke-dasharray", "3 3").attr("opacity", 0.3);
-
-    // Dot
-    g.append("circle")
-      .attr("cx", cx).attr("cy", axisY).attr("r", r)
-      .attr("fill", color).attr("filter", "url(#glow02)").attr("opacity", 0.9);
-
-    // Activity label (above)
-    const lg = g.append("g").attr("transform", `translate(${cx},${axisY - d.labelH})`);
-    lg.append("text")
-      .attr("text-anchor", "middle").attr("fill", "#c8cfd9")
-      .attr("font-size", "11px").attr("font-weight", "600")
-      .text(d.activity);
-    lg.append("text")
-      .attr("text-anchor", "middle").attr("y", 14)
-      .attr("fill", color).attr("font-size", "10px")
-      .text(d.co2);
-
-    // Human anchor (below) — emoji + text, always visible
-    g.append("text")
-      .attr("x", cx).attr("y", axisY + d.anchorH)
-      .attr("text-anchor", "middle").attr("dominant-baseline", "hanging")
-      .attr("font-size", "18px")
-      .text(d.emoji);
-    g.append("text")
-      .attr("x", cx).attr("y", axisY + d.anchorH + 24)
-      .attr("text-anchor", "middle").attr("dominant-baseline", "hanging")
-      .attr("fill", "#ffb8c6").attr("font-size", "10px").attr("font-style", "italic")
-      .text(d.anchor);
-  });
-})();
-
-// ══════════════════════════════════════════════════════════════════════════════
-// Experiment 03 — add below
-// ══════════════════════════════════════════════════════════════════════════════
-</script>
+  <script src="js/exp01.js"></script>
+  <script src="js/exp02.js"></script>
 </body>
 </html>
