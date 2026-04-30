@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Activity Carbon Footprint</title>
+  <script src="d3.v7.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e8eaf0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 700px;
+    }
+
+    header h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 0.92rem;
+      color: #8b95a8;
+      line-height: 1.6;
+    }
+
+    #chart-container {
+      width: 100%;
+      max-width: 860px;
+    }
+
+    svg {
+      width: 100%;
+      overflow: visible;
+    }
+
+    .bar-bg {
+      fill: #1e2130;
+      rx: 4;
+    }
+
+    .bar-fill {
+      rx: 4;
+    }
+
+    .range-line {
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+
+    .range-cap {
+      stroke-width: 2.5;
+    }
+
+    .activity-label {
+      font-size: 13px;
+      fill: #c8cfd9;
+      dominant-baseline: middle;
+      text-anchor: end;
+    }
+
+    .value-label {
+      font-size: 11.5px;
+      fill: #8b95a8;
+      dominant-baseline: middle;
+    }
+
+    .axis path, .axis line {
+      stroke: #2a2f42;
+    }
+
+    .axis text {
+      fill: #576070;
+      font-size: 11px;
+    }
+
+    .axis .domain { display: none; }
+
+    .grid line {
+      stroke: #1e2130;
+      stroke-dasharray: 3 4;
+    }
+
+    .grid .domain { display: none; }
+
+    /* Tooltip */
+    #tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #1e2130;
+      border: 1px solid #2e3448;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      max-width: 280px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 10;
+    }
+
+    #tooltip .tt-activity {
+      font-weight: 600;
+      font-size: 14px;
+      color: #e8eaf0;
+      margin-bottom: 8px;
+    }
+
+    #tooltip .tt-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 5px;
+    }
+
+    #tooltip .tt-label {
+      color: #576070;
+      white-space: nowrap;
+    }
+
+    #tooltip .tt-val {
+      color: #a8edea;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    #tooltip .tt-anchor {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #2e3448;
+      color: #8b95a8;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    #tooltip .tt-anchor span {
+      color: #fed6e3;
+      font-weight: 500;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #576070;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-range {
+      width: 28px;
+      height: 3px;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .legend-range::before,
+    .legend-range::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 8px;
+      top: -2.5px;
+      background: #8b95a8;
+    }
+    .legend-range::before { left: 0; }
+    .legend-range::after { right: 0; }
+
+    footer {
+      margin-top: 40px;
+      font-size: 11.5px;
+      color: #3a4050;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Carbon Cost of Digital Activities</h1>
+  <p>Estimated CO₂ equivalent emissions per single action — from a Visa swipe to a Bitcoin transaction.<br>
+  Hover over each bar for context.</p>
+</header>
+
+<div id="chart-container"></div>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#a8edea"></div>
+    <span>Point estimate</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-range" style="background:#8b95a8"></div>
+    <span>Reported range</span>
+  </div>
+</div>
+
+<footer>Sources: Google Sustainability Report, IEA, published AI energy estimates. Values are approximate.</footer>
+
+<div id="tooltip"></div>
+
+<script>
+const rawData = [
+  { activity: "Visa transaction",          min: 0.00045, max: 0.00045, anchor: "invisible to human senses",     display: "0.00045 g" },
+  { activity: "Gemini query",              min: 0.03,    max: 0.03,    anchor: "less than a Google search",     display: "0.03 g" },
+  { activity: "Google search",             min: 0.2,     max: 0.2,     anchor: "1 sec of LED bulb",             display: "0.2 g" },
+  { activity: "Plain email",               min: 0.3,     max: 0.3,     anchor: "1 sec of LED bulb",             display: "0.3 g" },
+  { activity: "ChatGPT query (low est.)",  min: 0.4,     max: 0.4,     anchor: "~2× a Google search",          display: "~0.4 g" },
+  { activity: "AI image generation",       min: 0.5,     max: 2.0,     anchor: "1–10 Google searches",         display: "0.5–2 g" },
+  { activity: "ChatGPT query (high est.)", min: 2.0,     max: 4.0,     anchor: "boiling 5 ml of water",        display: "2–4 g" },
+  { activity: "Netflix, 30 min",           min: 18,      max: 18,      anchor: "driving 100 m by car",         display: "~18 g" },
+  { activity: "Zoom, 1 hr HD",             min: 150,     max: 1000,    anchor: "driving 1–7 km by car",        display: "150–1,000 g" },
+  { activity: "Bitcoin transaction",       min: 400000,  max: 750000,  anchor: "driving 2,000–4,000 km by car", display: "400,000–750,000 g" },
+];
+
+// ── Layout ────────────────────────────────────────────────────────────────────
+const margin = { top: 20, right: 120, bottom: 50, left: 210 };
+const barHeight = 28;
+const barPad = 18;
+const totalHeight = rawData.length * (barHeight + barPad) + margin.top + margin.bottom;
+const containerWidth = document.getElementById("chart-container").clientWidth;
+const width = containerWidth - margin.left - margin.right;
+const height = totalHeight - margin.top - margin.bottom;
+
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("viewBox", `0 0 ${containerWidth} ${totalHeight}`)
+  .attr("height", totalHeight);
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// ── Scales ────────────────────────────────────────────────────────────────────
+const xScale = d3.scaleLog()
+  .domain([0.0001, 1_200_000])
+  .range([0, width])
+  .nice();
+
+const yScale = d3.scaleBand()
+  .domain(rawData.map(d => d.activity))
+  .range([0, height])
+  .paddingInner(0.45)
+  .paddingOuter(0.2);
+
+// Color scale: low = teal, high = warm pink/red
+const colorScale = d3.scaleLog()
+  .domain([0.0001, 1_200_000])
+  .range(["#a8edea", "#ff6b8a"]);
+
+// ── Grid lines ────────────────────────────────────────────────────────────────
+const xAxis = d3.axisBottom(xScale)
+  .tickValues([0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000, 100000, 1000000])
+  .tickFormat(d => {
+    if (d >= 1000) return d3.format(".2s")(d).replace("G","B") + " g";
+    return d3.format("~g")(d) + " g";
+  });
+
+g.append("g")
+  .attr("class", "grid")
+  .attr("transform", `translate(0,${height})`)
+  .call(d3.axisBottom(xScale)
+    .tickValues([0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000, 100000, 1000000])
+    .tickSize(-height)
+    .tickFormat(""))
+  .selectAll(".tick line")
+  .attr("stroke", "#1e2130")
+  .attr("stroke-dasharray", "3 4");
+
+g.append("g")
+  .attr("class", "axis")
+  .attr("transform", `translate(0,${height})`)
+  .call(xAxis)
+  .selectAll("text")
+  .attr("dy", "1.2em");
+
+g.append("text")
+  .attr("x", width / 2)
+  .attr("y", height + 44)
+  .attr("text-anchor", "middle")
+  .attr("fill", "#3a4050")
+  .attr("font-size", "11px")
+  .text("CO₂e per activity (log scale)");
+
+// ── Bars ──────────────────────────────────────────────────────────────────────
+const rowG = g.selectAll(".row")
+  .data(rawData)
+  .join("g")
+  .attr("class", "row")
+  .attr("transform", d => `translate(0, ${yScale(d.activity)})`);
+
+// Background track
+rowG.append("rect")
+  .attr("class", "bar-bg")
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("width", width)
+  .attr("height", yScale.bandwidth())
+  .attr("rx", 4);
+
+// Point estimate bar
+rowG.append("rect")
+  .attr("class", "bar-fill")
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("width", d => xScale(d.min) - xScale(0.0001))
+  .attr("height", yScale.bandwidth())
+  .attr("rx", 4)
+  .attr("fill", d => colorScale(d.min))
+  .attr("opacity", 0.85);
+
+// Range extension line (for items with min != max)
+rowG.filter(d => d.min !== d.max)
+  .append("line")
+  .attr("class", "range-line")
+  .attr("x1", d => xScale(d.min))
+  .attr("x2", d => xScale(d.max))
+  .attr("y1", yScale.bandwidth() / 2)
+  .attr("y2", yScale.bandwidth() / 2)
+  .attr("stroke", d => colorScale(d.max))
+  .attr("stroke-width", 3);
+
+// Range cap at max
+rowG.filter(d => d.min !== d.max)
+  .append("line")
+  .attr("class", "range-cap")
+  .attr("x1", d => xScale(d.max))
+  .attr("x2", d => xScale(d.max))
+  .attr("y1", yScale.bandwidth() * 0.2)
+  .attr("y2", yScale.bandwidth() * 0.8)
+  .attr("stroke", d => colorScale(d.max))
+  .attr("stroke-width", 2.5)
+  .attr("stroke-linecap", "round");
+
+// Value label
+rowG.append("text")
+  .attr("class", "value-label")
+  .attr("x", d => {
+    const x = xScale(d.max);
+    return x + 8;
+  })
+  .attr("y", yScale.bandwidth() / 2)
+  .text(d => d.display);
+
+// ── Y-axis labels ─────────────────────────────────────────────────────────────
+g.selectAll(".activity-label")
+  .data(rawData)
+  .join("text")
+  .attr("class", "activity-label")
+  .attr("x", -12)
+  .attr("y", d => yScale(d.activity) + yScale.bandwidth() / 2)
+  .text(d => d.activity);
+
+// ── Invisible hover targets ───────────────────────────────────────────────────
+const tooltip = d3.select("#tooltip");
+
+rowG.append("rect")
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("width", width)
+  .attr("height", yScale.bandwidth())
+  .attr("fill", "transparent")
+  .on("mousemove", function(event, d) {
+    const [mx, my] = d3.pointer(event, document.body);
+    tooltip
+      .style("opacity", 1)
+      .style("left", (mx + 18) + "px")
+      .style("top", (my - 10) + "px")
+      .html(`
+        <div class="tt-activity">${d.activity}</div>
+        <div class="tt-row">
+          <span class="tt-label">CO₂e</span>
+          <span class="tt-val">${d.display}</span>
+        </div>
+        ${d.min !== d.max ? `
+        <div class="tt-row">
+          <span class="tt-label">Low estimate</span>
+          <span class="tt-val">${d3.format(",.4~g")(d.min)} g</span>
+        </div>
+        <div class="tt-row">
+          <span class="tt-label">High estimate</span>
+          <span class="tt-val">${d3.format(",.4~g")(d.max)} g</span>
+        </div>` : ""}
+        <div class="tt-anchor">Real-world scale: <span>${d.anchor}</span></div>
+      `);
+  })
+  .on("mouseleave", () => tooltip.style("opacity", 0));
+
+// Highlight on hover
+rowG.on("mouseenter", function() {
+    d3.select(this).select(".bar-fill").attr("opacity", 1);
+  })
+  .on("mouseleave", function() {
+    d3.select(this).select(".bar-fill").attr("opacity", 0.85);
+  });
+</script>
+</body>
+</html>
