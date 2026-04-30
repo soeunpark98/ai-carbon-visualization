@@ -400,16 +400,16 @@
   // labelH = how far above axis the activity label floats
   // anchorH = how far below axis the human anchor floats
   const data = [
-    { activity: "Visa transaction",  min: 0.00045, max: 0.00045, co2: "0.00045 g", anchor: "invisible to senses",    labelH: 150, anchorH: 80  },
-    { activity: "Gemini query",      min: 0.03,    max: 0.03,    co2: "0.03 g",    anchor: "< a Google search",      labelH: 95,  anchorH: 55  },
-    { activity: "Google search",     min: 0.2,     max: 0.2,     co2: "0.2 g",     anchor: "≈ 1 sec, LED bulb",      labelH: 160, anchorH: 100 },
-    { activity: "Plain email",       min: 0.3,     max: 0.3,     co2: "0.3 g",     anchor: "same as Google search",  labelH: 75,  anchorH: 65  },
-    { activity: "ChatGPT (low)",     min: 0.4,     max: 0.4,     co2: "~0.4 g",    anchor: "2× Google search",       labelH: 130, anchorH: 115 },
-    { activity: "AI image gen.",     min: 0.5,     max: 2.0,     co2: "0.5–2 g",   anchor: "1–10 Google searches",   labelH: 65,  anchorH: 75  },
-    { activity: "ChatGPT (high)",    min: 2.0,     max: 4.0,     co2: "2–4 g",     anchor: "boils 5 ml water",       labelH: 115, anchorH: 55  },
-    { activity: "Netflix 30 min",    min: 18,      max: 18,      co2: "~18 g",     anchor: "drives 100 m by car",    labelH: 155, anchorH: 95  },
-    { activity: "Zoom 1 hr HD",      min: 150,     max: 1000,    co2: "150–1k g",  anchor: "drives 1–7 km by car",   labelH: 90,  anchorH: 60  },
-    { activity: "Bitcoin tx",        min: 400000,  max: 750000,  co2: "400k–750k g", anchor: "drives 2k–4k km",      labelH: 150, anchorH: 85  },
+    { activity: "Visa transaction",  min: 0.00045, max: 0.00045, co2: "0.00045 g",   anchor: "invisible to senses",   emoji: "🫥", labelH: 150, anchorH: 80  },
+    { activity: "Gemini query",      min: 0.03,    max: 0.03,    co2: "0.03 g",      anchor: "< a Google search",     emoji: "🔍", labelH: 95,  anchorH: 55  },
+    { activity: "Google search",     min: 0.2,     max: 0.2,     co2: "0.2 g",       anchor: "≈ 1 sec, LED bulb",     emoji: "💡", labelH: 160, anchorH: 100 },
+    { activity: "Plain email",       min: 0.3,     max: 0.3,     co2: "0.3 g",       anchor: "same as Google search", emoji: "💡", labelH: 75,  anchorH: 65  },
+    { activity: "ChatGPT (low)",     min: 0.4,     max: 0.4,     co2: "~0.4 g",      anchor: "2× Google search",      emoji: "🔍🔍", labelH: 130, anchorH: 115 },
+    { activity: "AI image gen.",     min: 0.5,     max: 2.0,     co2: "0.5–2 g",     anchor: "1–10 Google searches",  emoji: "🖼️", labelH: 65,  anchorH: 75  },
+    { activity: "ChatGPT (high)",    min: 2.0,     max: 4.0,     co2: "2–4 g",       anchor: "boils 5 ml water",      emoji: "♨️", labelH: 115, anchorH: 55  },
+    { activity: "Netflix 30 min",    min: 18,      max: 18,      co2: "~18 g",       anchor: "drives 100 m by car",   emoji: "🚗", labelH: 155, anchorH: 95  },
+    { activity: "Zoom 1 hr HD",      min: 150,     max: 1000,    co2: "150–1k g",    anchor: "drives 1–7 km by car",  emoji: "🛣️", labelH: 90,  anchorH: 60  },
+    { activity: "Bitcoin tx",        min: 400000,  max: 750000,  co2: "400k–750k g", anchor: "drives 2k–4k km",       emoji: "🌍", labelH: 150, anchorH: 85  },
   ];
 
   data.forEach(d => {
@@ -421,7 +421,7 @@
   const mL = 50, mR = 50;
   const width = containerWidth - mL - mR;
   const axisY = 185;
-  const totalH = axisY + 165;
+  const totalH = axisY + 200;
 
   const svg = d3.select("#chart-02").append("svg")
     .attr("viewBox", `0 0 ${containerWidth} ${totalH}`)
@@ -516,11 +516,16 @@
       .attr("fill", color).attr("font-size", "10px")
       .text(d.co2);
 
-    // Human anchor (below) — always visible
+    // Human anchor (below) — emoji + text, always visible
     g.append("text")
       .attr("x", cx).attr("y", axisY + d.anchorH)
       .attr("text-anchor", "middle").attr("dominant-baseline", "hanging")
-      .attr("fill", "#ffb8c6").attr("font-size", "10.5px").attr("font-style", "italic")
+      .attr("font-size", "18px")
+      .text(d.emoji);
+    g.append("text")
+      .attr("x", cx).attr("y", axisY + d.anchorH + 24)
+      .attr("text-anchor", "middle").attr("dominant-baseline", "hanging")
+      .attr("fill", "#ffb8c6").attr("font-size", "10px").attr("font-style", "italic")
       .text(d.anchor);
   });
 })();
