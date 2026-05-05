@@ -22,7 +22,6 @@ export function renderA3Main(): string {
         </div>
       </div>
       <div id="a3-q2-line" class="min-h-[220px] w-full mb-8"></div>
-      <div id="a3-q2-regions" class="min-h-[280px] w-full"></div>
     </section>
 
     <section class="space-y-5">
