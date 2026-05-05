@@ -1,9 +1,11 @@
 /** D3 is provided globally via index.html (d3.v7). */
 
-type RowQ1 = { activity: string; mid: number; isAi: boolean; min: number; max: number };
+type RowQ1 = { activity: string; mid: number; isAi: boolean; min: number; max: number; isRef?: boolean };
 
 export async function runA3Charts(): Promise<void> {
-  await Promise.all([runQ1Comparative(), runQ2Datacenter(), runQ3Correlation(), runQ4Scale()]);
+  await Promise.all([runQ1Comparative(), runQ2Datacenter(), runQ3Correlation()]);
+  runQ4Calculator();
+  runQ4Global();
 }
 
 async function runQ1Comparative(): Promise<void> {
@@ -24,7 +26,12 @@ async function runQ1Comparative(): Promise<void> {
         max: +String(d.CO2e_max_g ?? "0"),
       };
     });
-    const data = raw.filter((r): r is RowQ1 => r != null).sort((a, b) => b.mid - a.mid);
+    const refs: RowQ1[] = [
+      { activity: "Charge smartphone (full)", mid: 8.22, isAi: false, min: 8.22, max: 8.22, isRef: true },
+      { activity: "Boil water (1 cup)", mid: 21, isAi: false, min: 21, max: 21, isRef: true },
+      { activity: "Drive 1 km (petrol car)", mid: 150, isAi: false, min: 120, max: 180, isRef: true },
+    ];
+    const data = [...raw.filter((r): r is RowQ1 => r != null && r.activity !== "Bitcoin transaction"), ...refs].sort((a, b) => b.mid - a.mid);
 
     const margin = { top: 16, right: 100, bottom: 48, left: 200 };
     const barH = 26;
@@ -51,7 +58,7 @@ async function runQ1Comparative(): Promise<void> {
       .range([0, innerH])
       .paddingInner(0.35);
 
-    const tickVals = [1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100, 1e3, 1e4, 1e5, 1e6];
+    const tickVals = [1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100, 1e3, 1e6];
 
     g.append("g")
       .attr("class", "grid")
@@ -93,15 +100,18 @@ async function runQ1Comparative(): Promise<void> {
       .attr("width", width)
       .attr("height", y.bandwidth())
       .attr("rx", 4)
-      .attr("fill", "#1e2130");
+      .attr("fill", (d) => (d.isRef ? "#252836" : "#1e2130"))
+      .attr("stroke", (d) => (d.isRef ? "#3a4050" : "none"))
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", (d) => (d.isRef ? "4 3" : "none"));
 
     rows
       .append("rect")
       .attr("x", 0)
       .attr("height", y.bandwidth())
       .attr("rx", 4)
-      .attr("fill", (d) => (d.isAi ? "#fed6e3" : "#a8edea"))
-      .attr("opacity", 0.88)
+      .attr("fill", (d) => (d.isRef ? "#8b95a8" : d.isAi ? "#ff6b9d" : "#a8edea"))
+      .attr("opacity", (d) => (d.isRef ? 0.45 : 0.88))
       .attr("width", (d) => x(d.mid));
 
     rows
@@ -121,14 +131,15 @@ async function runQ1Comparative(): Promise<void> {
       .attr("y", y.bandwidth() / 2)
       .attr("text-anchor", "end")
       .attr("dominant-baseline", "middle")
-      .attr("fill", "#c8cfd9")
+      .attr("fill", (d) => (d.isRef ? "#576070" : "#c8cfd9"))
       .attr("font-size", "12px")
+      .attr("font-style", (d) => (d.isRef ? "italic" : "normal"))
       .text((d) => d.activity);
 
     rows
       .append("text")
       .attr("class", "value-label")
-      .attr("x", (d) => x(d.mid) + 8)
+      .attr("x", (d) => Math.max(x(d.mid), x(d.max)) + 10)
       .attr("y", y.bandwidth() / 2)
       .attr("dominant-baseline", "middle")
       .attr("fill", "#8b95a8")
@@ -136,21 +147,22 @@ async function runQ1Comparative(): Promise<void> {
       .text((d) => `${d3.format(",.3~g")(d.mid)} g`);
 
     const legend = svg.append("g").attr("transform", `translate(${margin.left}, 4)`);
-    legend
-      .append("rect")
-      .attr("width", 10)
-      .attr("height", 10)
-      .attr("rx", 2)
-      .attr("fill", "#fed6e3");
+    legend.append("rect").attr("width", 10).attr("height", 10).attr("rx", 2).attr("fill", "#ff6b9d");
     legend.append("text").attr("x", 16).attr("y", 9).attr("fill", "#576070").attr("font-size", "11px").text("AI-related");
+    legend.append("rect").attr("x", 110).attr("width", 10).attr("height", 10).attr("rx", 2).attr("fill", "#a8edea");
+    legend.append("text").attr("x", 126).attr("y", 9).attr("fill", "#576070").attr("font-size", "11px").text("Other activities");
     legend
       .append("rect")
-      .attr("x", 110)
+      .attr("x", 254)
       .attr("width", 10)
       .attr("height", 10)
       .attr("rx", 2)
-      .attr("fill", "#a8edea");
-    legend.append("text").attr("x", 126).attr("y", 9).attr("fill", "#576070").attr("font-size", "11px").text("Other activities");
+      .attr("fill", "#8b95a8")
+      .attr("opacity", 0.45)
+      .attr("stroke", "#3a4050")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "4 3");
+    legend.append("text").attr("x", 270).attr("y", 9).attr("fill", "#576070").attr("font-size", "11px").text("Human scale reference");
   } catch (e) {
     console.error(e);
     d3.select(mount).append("p").attr("class", "text-muted text-sm").text("Could not load 4a.csv.");
@@ -489,173 +501,238 @@ async function runQ3Correlation(): Promise<void> {
   }
 }
 
-async function runQ4Scale(): Promise<void> {
-  const mB = "#a3-q4b";
-  const mC = "#a3-q4c";
-  if (!document.querySelector(mB) || !document.querySelector(mC)) return;
-  d3.select(mB).html("");
-  d3.select(mC).html("");
+function runQ4Calculator(): void {
+  if (!document.querySelector("#a3-q4-result")) return;
 
-  try {
-    const rows4b = await d3.csv("data/part4/4b.csv", (d) => ({
-      scenario: (d.Scenario ?? "").replace(/^"|"$/g, ""),
-      tonnes: +String(d.Total_CO2e_tonnes ?? ""),
-      period: (d.Period ?? "").trim(),
-      carKm: +String(d.Equivalent_car_km ?? ""),
-    }));
+  const CO2_G: Record<string, Record<string, number>> = {
+    chatgpt: { short: 0.4,  medium: 1.5,  long: 3.0  },
+    gemini:  { short: 0.03, medium: 0.15, long: 0.3  },
+    claude:  { short: 0.3,  medium: 1.2,  long: 2.5  },
+  };
+  const CAR_G_PER_KM = 150;
 
-    const annual = rows4b.filter((r) => r.period === "1 year" && Number.isFinite(r.tonnes));
+  const TOOL_COLOR: Record<string, string> = {
+    chatgpt: "#ff6b9d",
+    gemini:  "#a8edea",
+    claude:  "#c4b5fd",
+  };
 
-    const rootB = document.querySelector(mB)!;
-    const wb = Math.max(400, rootB.clientWidth || 480);
-    const hb = 300;
-    const mb = { top: 16, right: 16, bottom: 120, left: 52 };
-    const ibw = wb - mb.left - mb.right;
-    const ibh = hb - mb.top - mb.bottom;
+  const state = { tool: "chatgpt", len: "medium", freq: 10 };
 
-    const shortLabel = (s: string) =>
-      s
-        .replace(/\([^)]*\)/g, "")
-        .replace(/"/g, "")
-        .trim()
-        .slice(0, 42);
-
-    const x = d3
-      .scaleBand()
-      .domain(annual.map((d) => d.scenario))
-      .range([0, ibw])
-      .padding(0.28);
-
-    const y = d3
-      .scaleLinear()
-      .domain([0, d3.max(annual, (d) => d.tonnes)! * 1.05])
-      .range([ibh, 0])
-      .nice();
-
-    const svgB = d3
-      .select(mB)
-      .append("svg")
-      .attr("viewBox", `0 0 ${wb} ${hb}`)
-      .attr("width", "100%")
-      .attr("height", hb);
-
-    const gB = svgB.append("g").attr("transform", `translate(${mb.left},${mb.top})`);
-
-    gB.selectAll("rect")
-      .data(annual)
-      .join("rect")
-      .attr("x", (d) => x(d.scenario)!)
-      .attr("y", (d) => y(d.tonnes))
-      .attr("width", x.bandwidth())
-      .attr("height", (d) => ibh - y(d.tonnes))
-      .attr("rx", 4)
-      .attr("fill", (d) => (d.scenario.includes("ChatGPT") ? "#fed6e3" : "#a8edea"))
-      .attr("opacity", 0.9)
-      .append("title")
-      .text((d) => `${d.scenario}\n${d.tonnes.toLocaleString()} t CO₂e · ~${d.carKm.toLocaleString()} car-km`);
-
-    gB.append("g")
-      .attr("class", "axis")
-      .attr("transform", `translate(0,${ibh})`)
-      .call(d3.axisBottom(x).tickFormat((d) => shortLabel(String(d))))
-      .selectAll("text")
-      .attr("transform", "rotate(-38)")
-      .style("text-anchor", "end")
-      .attr("dx", "-0.35em")
-      .attr("dy", "0.45em");
-
-    gB.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5).tickFormat((v) => `${v}`));
-
-    gB.append("text")
-      .attr("x", -ibh / 2)
-      .attr("y", -40)
-      .attr("transform", "rotate(-90)")
-      .attr("text-anchor", "middle")
-      .attr("fill", "#3a4050")
-      .attr("font-size", "11px")
-      .text("Total CO₂e (tonnes / year)");
-
-    const rows4c = await d3.csv("data/part4/4c.csv", (d) => ({
-      tier: d.User_type ?? "",
-      tool: d.AI_tool ?? "",
-      km: +String(d.Equiv_car_km ?? ""),
-    }));
-
-    const tiers = ["Light user", "Medium user", "Heavy user"];
-    const tools = ["Gemini", "ChatGPT"];
-    const cells = rows4c.filter((r) => tiers.includes(r.tier) && tools.includes(r.tool));
-
-    const rootC = document.querySelector(mC)!;
-    const wc = Math.max(400, rootC.clientWidth || 480);
-    const hc = 300;
-    const mc = { top: 16, right: 16, bottom: 48, left: 48 };
-    const icw = wc - mc.left - mc.right;
-    const ich = hc - mc.top - mc.bottom;
-
-    const x0 = d3.scaleBand<string>().domain(tiers).range([0, icw]).padding(0.25);
-    const x1 = d3.scaleBand<string>().domain(tools).range([0, x0.bandwidth()]).padding(0.15);
-
-    const yc = d3
-      .scaleLinear()
-      .domain([0, d3.max(cells, (d) => d.km)! * 1.08])
-      .range([ich, 0])
-      .nice();
-
-    const svgC = d3
-      .select(mC)
-      .append("svg")
-      .attr("viewBox", `0 0 ${wc} ${hc}`)
-      .attr("width", "100%")
-      .attr("height", hc);
-
-    const gC = svgC.append("g").attr("transform", `translate(${mc.left},${mc.top})`);
-
-    gC.append("g")
-      .attr("class", "grid")
-      .call(d3.axisLeft(yc).tickSize(-icw).tickFormat(() => "").ticks(5))
-      .selectAll("line")
-      .attr("stroke", "#1e2130")
-      .attr("stroke-dasharray", "3 4");
-
-    const tg = gC
-      .selectAll<SVGGElement, string>("g.tier")
-      .data(tiers)
-      .join("g")
-      .attr("class", "tier")
-      .attr("transform", (t) => `translate(${x0(t)},0)`);
-
-    tg.selectAll<SVGRectElement, string>("rect")
-      .data((tier) => tools.map((tool) => ({ tier, tool, km: cells.find((c) => c.tier === tier && c.tool === tool)?.km ?? 0 })))
-      .join("rect")
-      .attr("x", (d) => x1(d.tool)!)
-      .attr("y", (d) => yc(d.km))
-      .attr("width", x1.bandwidth())
-      .attr("height", (d) => ich - yc(d.km))
-      .attr("rx", 3)
-      .attr("fill", (d) => (d.tool === "ChatGPT" ? "#fed6e3" : "#a8edea"))
-      .attr("opacity", 0.92);
-
-    gC.append("g").attr("class", "axis").attr("transform", `translate(0,${ich})`).call(d3.axisBottom(x0));
-
-    gC.append("g").attr("class", "axis").call(d3.axisLeft(yc).ticks(5).tickFormat((d) => d3.format("~s")(+d)));
-
-    gC.append("text")
-      .attr("x", -ich / 2)
-      .attr("y", -36)
-      .attr("transform", "rotate(-90)")
-      .attr("text-anchor", "middle")
-      .attr("fill", "#3a4050")
-      .attr("font-size", "11px")
-      .text("equiv. driving (km / year)");
-
-    const leg = svgC.append("g").attr("transform", `translate(${mc.left}, ${hc - 14})`);
-    leg.append("rect").attr("width", 10).attr("height", 10).attr("rx", 2).attr("fill", "#a8edea");
-    leg.append("text").attr("x", 14).attr("y", 9).attr("fill", "#576070").attr("font-size", "10px").text("Gemini");
-    leg.append("rect").attr("x", 72).attr("width", 10).attr("height", 10).attr("rx", 2).attr("fill", "#fed6e3");
-    leg.append("text").attr("x", 86).attr("y", 9).attr("fill", "#576070").attr("font-size", "10px").text("ChatGPT");
-  } catch (e) {
-    console.error(e);
-    d3.select(mB).append("p").attr("class", "text-muted text-sm").text("Could not load 4b.");
-    d3.select(mC).append("p").attr("class", "text-muted text-sm").text("Could not load 4c.");
+  function setActive(selector: string, activeDataAttr: string, value: string, color: string) {
+    document.querySelectorAll<HTMLButtonElement>(selector).forEach(btn => {
+      const isActive = btn.dataset[activeDataAttr] === value;
+      btn.style.background = isActive ? color : "";
+      btn.style.color = isActive ? "#0f1117" : "";
+      btn.style.borderColor = isActive ? color : "";
+    });
   }
+
+  document.querySelectorAll<HTMLButtonElement>(".q4-tool-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.tool = btn.dataset.tool!;
+      setActive(".q4-tool-btn", "tool", state.tool, TOOL_COLOR[state.tool]);
+      update();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>(".q4-len-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.len = btn.dataset.len!;
+      setActive(".q4-len-btn", "len", state.len, TOOL_COLOR[state.tool]);
+      update();
+    });
+  });
+
+  const freqInput = document.querySelector<HTMLInputElement>("#a3-q4-freq");
+  const freqVal   = document.querySelector<HTMLElement>("#a3-q4-freq-val");
+  freqInput?.addEventListener("input", () => {
+    state.freq = +(freqInput.value);
+    if (freqVal) freqVal.textContent = String(state.freq);
+    update();
+  });
+
+  function update() {
+    const color = TOOL_COLOR[state.tool];
+    setActive(".q4-tool-btn", "tool", state.tool, color);
+    setActive(".q4-len-btn",  "len",  state.len,  color);
+
+    const co2PerQuery = CO2_G[state.tool]?.[state.len] ?? 1;
+    const annualG   = co2PerQuery * state.freq * 365;
+    const annualKg  = annualG / 1000;
+    const carKm     = annualG / CAR_G_PER_KM;
+
+    const kgLabel = annualKg < 1
+      ? `${d3.format(".2~f")(annualG)} g`
+      : `${d3.format(".2~f")(annualKg)} kg`;
+
+    d3.select("#a3-q4-result").html(`
+      <div class="flex flex-wrap gap-10 items-end py-2">
+        <div>
+          <p class="text-xs uppercase tracking-wider text-dim mb-1">Annual CO₂e</p>
+          <p class="text-4xl font-bold tabular-nums" style="color:${color}">${kgLabel}</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-dim mb-1">≈ driving a car</p>
+          <p class="text-4xl font-bold text-soft tabular-nums">${d3.format(",.0f")(carKm)} km</p>
+        </div>
+        <p class="text-xs text-dim self-end pb-1">
+          ${d3.format(".3~g")(co2PerQuery)} g/query × ${state.freq}/day × 365 days
+        </p>
+      </div>
+    `);
+
+    drawBar(carKm, color);
+  }
+
+  function drawBar(carKm: number, color: string) {
+    d3.select("#a3-q4-chart").html("");
+    const root = document.querySelector<HTMLElement>("#a3-q4-chart")!;
+    const w  = Math.max(500, root.clientWidth || 800);
+    const h  = 100;
+    const m  = { top: 36, right: 32, bottom: 28, left: 32 };
+    const iw = w - m.left - m.right;
+
+    const refs = [100, 500, 1000, 5000, 15000];
+    const domainMax = Math.max(carKm * 1.5, refs[refs.length - 1] * 1.1);
+    const x = d3.scaleLinear().domain([0, domainMax]).range([0, iw]);
+
+    const svg = d3.select("#a3-q4-chart").append("svg")
+      .attr("viewBox", `0 0 ${w} ${h}`)
+      .attr("width", "100%")
+      .attr("height", h);
+    const g = svg.append("g").attr("transform", `translate(${m.left},${m.top})`);
+
+    // track
+    g.append("rect").attr("width", iw).attr("height", 16).attr("rx", 8).attr("fill", "#1e2130");
+
+    // user bar
+    g.append("rect")
+      .attr("width", 0).attr("height", 16).attr("rx", 8)
+      .attr("fill", color).attr("opacity", 0.85)
+      .transition().duration(400)
+      .attr("width", Math.min(x(carKm), iw));
+
+    // reference ticks
+    refs.forEach(km => {
+      if (x(km) > iw) return;
+      g.append("line")
+        .attr("x1", x(km)).attr("x2", x(km))
+        .attr("y1", -4).attr("y2", 22)
+        .attr("stroke", "#3a4050").attr("stroke-width", 1);
+      g.append("text")
+        .attr("x", x(km)).attr("y", -8)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#576070").attr("font-size", "10px")
+        .text(`${d3.format("~s")(km)} km`);
+    });
+
+    // user label
+    const ux = Math.min(x(carKm), iw);
+    g.append("text")
+      .attr("x", ux).attr("y", 32)
+      .attr("text-anchor", ux > iw * 0.75 ? "end" : "middle")
+      .attr("fill", color).attr("font-size", "11px").attr("font-weight", "600")
+      .text(`you: ${d3.format(",.0f")(carKm)} km`);
+  }
+
+  update();
+}
+
+function runQ4Global(): void {
+  const mount = "#a3-q4-global";
+  if (!document.querySelector(mount)) return;
+
+  // assumptions
+  const DAU        = 100_000_000;   // ChatGPT daily active users
+  const queriesDay = 5;
+  const co2PerQ    = 0.4;           // g, short query
+  const CAR_G_PER_KM = 150;
+
+  const dailyG   = DAU * queriesDay * co2PerQ;
+  const annualG  = dailyG * 365;
+  const annualKm = annualG / CAR_G_PER_KM;
+
+  // cosmic references (km)
+  const MOON  = 384_400;
+  const SUN   = 149_600_000;
+  const MARS  = 225_000_000;
+
+  const sunTimes  = (annualKm / SUN).toFixed(1);
+
+  const root = document.querySelector<HTMLElement>(mount)!;
+  const w    = Math.max(500, root.clientWidth || 800);
+  const m    = { top: 28, right: 24, bottom: 28, left: 24 };
+  const iw   = w - m.left - m.right;
+  const h    = 110;
+
+  // header
+  d3.select(mount).html(`
+    <p class="text-xs uppercase tracking-wider text-dim mb-1">At global scale</p>
+    <p class="text-xs text-dim mb-4">
+      100M daily users · 5 short queries/day · 0.4 g CO₂e per query (ChatGPT)
+    </p>
+    <div class="flex flex-wrap gap-10 mb-6">
+      <div>
+        <p class="text-xs text-dim mb-1">Annual CO₂e</p>
+        <p class="text-3xl font-bold text-soft">${d3.format(",.0f")(annualG / 1e9)} M tonnes</p>
+      </div>
+      <div>
+        <p class="text-xs text-dim mb-1">≈ driving a car</p>
+        <p class="text-3xl font-bold" style="color:#ff6b9d">${d3.format(",.0f")(annualKm / 1e6)} M km</p>
+      </div>
+      <div class="self-end pb-0.5">
+        <p class="text-sm text-muted">= Earth → Sun × <span class="text-soft font-semibold">${sunTimes}</span></p>
+      </div>
+    </div>
+    <div id="a3-q4-global-chart"></div>
+  `);
+
+  // cosmic ruler
+  const domainMax = MARS * 1.25;
+  const x = d3.scaleLinear().domain([0, domainMax]).range([0, iw]);
+
+  const svg = d3.select("#a3-q4-global-chart").append("svg")
+    .attr("viewBox", `0 0 ${w} ${h}`)
+    .attr("width", "100%")
+    .attr("height", h);
+  const g = svg.append("g").attr("transform", `translate(${m.left},${m.top})`);
+
+  // track
+  g.append("rect").attr("width", iw).attr("height", 14).attr("rx", 7).attr("fill", "#1e2130");
+
+  // global bar
+  g.append("rect")
+    .attr("width", 0).attr("height", 14).attr("rx", 7)
+    .attr("fill", "#ff6b9d").attr("opacity", 0.85)
+    .transition().duration(600)
+    .attr("width", Math.min(x(annualKm), iw));
+
+  // cosmic reference ticks
+  const cosmicRefs = [
+    { km: MOON,  label: "Moon" },
+    { km: SUN,   label: "Earth → Sun" },
+    { km: MARS,  label: "Earth → Mars" },
+  ];
+  cosmicRefs.forEach(ref => {
+    const px = x(ref.km);
+    if (px > iw) return;
+    g.append("line")
+      .attr("x1", px).attr("x2", px)
+      .attr("y1", -6).attr("y2", 20)
+      .attr("stroke", "#3a4050").attr("stroke-width", 1);
+    g.append("text")
+      .attr("x", px).attr("y", -10)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#576070").attr("font-size", "10px")
+      .text(ref.label);
+  });
+
+  // global label
+  const gx = Math.min(x(annualKm), iw);
+  g.append("text")
+    .attr("x", gx).attr("y", 32)
+    .attr("text-anchor", gx > iw * 0.75 ? "end" : "middle")
+    .attr("fill", "#ff6b9d").attr("font-size", "11px").attr("font-weight", "600")
+    .text(`${d3.format(",.0f")(annualKm / 1e6)}M km/yr`);
 }

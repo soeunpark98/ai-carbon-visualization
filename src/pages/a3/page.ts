@@ -54,27 +54,55 @@ export function renderA3Main(): string {
       <div id="a3-q3" class="min-h-[380px] w-full overflow-x-auto"></div>
     </section>
 
-    <section class="space-y-5">
+    <section class="space-y-6">
       <div class="flex items-baseline gap-5 pb-4 border-b border-surface">
         <span class="text-[2.5rem] font-extrabold text-rim/80 leading-none select-none min-w-[56px] text-right">Q4</span>
         <div>
-          <p class="text-lg font-semibold text-soft tracking-tight">Scale — millions of users over time</p>
+          <p class="text-lg font-semibold text-soft tracking-tight">Your AI carbon footprint</p>
           <p class="text-sm text-muted mt-1 leading-relaxed max-w-3xl">
-            When per-query AI emissions are multiplied by daily active users, cumulative annual tonnes and car-km equivalents; plus per-person annual footprint by usage tier.
-            <span class="text-rim">·</span> Datasets: <code class="text-xs text-soft">part4/4b.csv</code>, <code class="text-xs text-soft">part4/4c.csv</code>
+            How does your daily AI usage add up over a year? Enter your habits and see the CO₂e — translated into driving distance.
           </p>
         </div>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 rounded-xl border border-surface bg-[#0f1117] p-6">
         <div>
-          <p class="text-xs uppercase tracking-wider text-dim mb-2">Scenario totals (1 year)</p>
-          <div id="a3-q4b" class="min-h-[280px] w-full"></div>
+          <p class="text-xs uppercase tracking-wider text-dim mb-3">AI tool</p>
+          <div id="a3-q4-tools" class="flex flex-col gap-2">
+            <button data-tool="chatgpt" class="q4-tool-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium border border-surface text-muted transition-all">ChatGPT</button>
+            <button data-tool="gemini"  class="q4-tool-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium border border-surface text-muted transition-all">Gemini</button>
+            <button data-tool="claude"  class="q4-tool-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium border border-surface text-muted transition-all">Claude</button>
+          </div>
         </div>
         <div>
-          <p class="text-xs uppercase tracking-wider text-dim mb-2">Per-person annual footprint by tier</p>
-          <div id="a3-q4c" class="min-h-[280px] w-full"></div>
+          <p class="text-xs uppercase tracking-wider text-dim mb-3">Queries per day</p>
+          <div class="flex flex-col gap-3">
+            <span id="a3-q4-freq-val" class="text-4xl font-bold text-soft tabular-nums">10</span>
+            <input type="range" id="a3-q4-freq" min="1" max="50" value="10"
+              class="w-full cursor-pointer accent-[#a8edea]">
+            <div class="flex justify-between text-xs text-dim"><span>1×</span><span>50×</span></div>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-dim mb-3">Query length</p>
+          <div id="a3-q4-lengths" class="flex flex-col gap-2">
+            <button data-len="short"  class="q4-len-btn text-left px-4 py-2.5 rounded-lg border border-surface text-sm transition-all">
+              <span class="font-medium text-muted">Short</span><span class="text-dim ml-2 text-xs">~50 words</span>
+            </button>
+            <button data-len="medium" class="q4-len-btn text-left px-4 py-2.5 rounded-lg border border-surface text-sm transition-all">
+              <span class="font-medium text-muted">Medium</span><span class="text-dim ml-2 text-xs">~200 words</span>
+            </button>
+            <button data-len="long"   class="q4-len-btn text-left px-4 py-2.5 rounded-lg border border-surface text-sm transition-all">
+              <span class="font-medium text-muted">Long</span><span class="text-dim ml-2 text-xs">~500+ words</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      <div id="a3-q4-result" class="min-h-[72px]"></div>
+      <div id="a3-q4-chart" class="w-full"></div>
+
+      <div id="a3-q4-global" class="mt-8 rounded-xl border border-surface bg-[#0f1117] p-6 space-y-4"></div>
     </section>
 
     <div class="h-px w-full bg-gradient-to-r from-transparent via-surface to-transparent my-4"></div>
