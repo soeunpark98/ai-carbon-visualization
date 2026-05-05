@@ -1,4 +1,5 @@
 /** D3 is provided globally via index.html (d3.v7). */
+import { initGlobalScene } from "./global-scene";
 
 type RowQ1 = { activity: string; mid: number; isAi: boolean; min: number; max: number; isRef?: boolean };
 
@@ -33,7 +34,7 @@ async function runQ1Comparative(): Promise<void> {
     ];
     const data = [...raw.filter((r): r is RowQ1 => r != null && r.activity !== "Bitcoin transaction"), ...refs].sort((a, b) => b.mid - a.mid);
 
-    const margin = { top: 16, right: 100, bottom: 48, left: 200 };
+    const margin = { top: 36, right: 100, bottom: 48, left: 200 };
     const barH = 26;
     const pad = 12;
     const containerW = Math.max(640, root.clientWidth || 860);
@@ -288,8 +289,8 @@ async function runQ2Datacenter(): Promise<void> {
 
     const barRoot = document.querySelector(barMount)!;
     const bw = Math.max(520, barRoot.clientWidth || 900);
-    const mb = { top: 20, right: 20, bottom: 56, left: 44 };
-    const bh = 320;
+    const mb = { top: 20, right: 20, bottom: 86, left: 44 };
+    const bh = 360;
     const biw = bw - mb.left - mb.right;
     const bih = bh - mb.top - mb.bottom;
 
@@ -369,7 +370,7 @@ async function runQ2Datacenter(): Promise<void> {
       .attr("font-size", "11px")
       .text("Electricity (TWh) by region — 2b (selected regions)");
 
-    const leg = svgB.append("g").attr("transform", `translate(${mb.left}, ${bh - 18})`);
+    const leg = svgB.append("g").attr("transform", `translate(${mb.left}, ${bh - 24})`);
     regions.forEach((r, i) => {
       const gx = i * 118;
       leg.append("rect").attr("x", gx).attr("width", 10).attr("height", 10).attr("rx", 2).attr("fill", color(r));
@@ -593,8 +594,8 @@ function runQ4Calculator(): void {
     const m  = { top: 36, right: 32, bottom: 28, left: 32 };
     const iw = w - m.left - m.right;
 
-    const refs = [100, 500, 1000, 5000, 15000];
-    const domainMax = Math.max(carKm * 1.5, refs[refs.length - 1] * 1.1);
+    const refs = [100, 250, 500];
+    const domainMax = Math.max(carKm * 1.5, 550);
     const x = d3.scaleLinear().domain([0, domainMax]).range([0, iw]);
 
     const svg = d3.select("#a3-q4-chart").append("svg")
@@ -666,7 +667,6 @@ function runQ4Global(): void {
   const iw   = w - m.left - m.right;
   const h    = 110;
 
-  // header
   d3.select(mount).html(`
     <p class="text-xs uppercase tracking-wider text-dim mb-1">At global scale</p>
     <p class="text-xs text-dim mb-4">
@@ -685,54 +685,10 @@ function runQ4Global(): void {
         <p class="text-sm text-muted">= Earth → Sun × <span class="text-soft font-semibold">${sunTimes}</span></p>
       </div>
     </div>
-    <div id="a3-q4-global-chart"></div>
+    <div id="a3-q4-three-canvas" style="width:100%;border-radius:12px;overflow:hidden;"></div>
+    <p class="text-[10px] text-dim mt-2">drag to rotate</p>
   `);
 
-  // cosmic ruler
-  const domainMax = MARS * 1.25;
-  const x = d3.scaleLinear().domain([0, domainMax]).range([0, iw]);
-
-  const svg = d3.select("#a3-q4-global-chart").append("svg")
-    .attr("viewBox", `0 0 ${w} ${h}`)
-    .attr("width", "100%")
-    .attr("height", h);
-  const g = svg.append("g").attr("transform", `translate(${m.left},${m.top})`);
-
-  // track
-  g.append("rect").attr("width", iw).attr("height", 14).attr("rx", 7).attr("fill", "#1e2130");
-
-  // global bar
-  g.append("rect")
-    .attr("width", 0).attr("height", 14).attr("rx", 7)
-    .attr("fill", "#ff6b9d").attr("opacity", 0.85)
-    .transition().duration(600)
-    .attr("width", Math.min(x(annualKm), iw));
-
-  // cosmic reference ticks
-  const cosmicRefs = [
-    { km: MOON,  label: "Moon" },
-    { km: SUN,   label: "Earth → Sun" },
-    { km: MARS,  label: "Earth → Mars" },
-  ];
-  cosmicRefs.forEach(ref => {
-    const px = x(ref.km);
-    if (px > iw) return;
-    g.append("line")
-      .attr("x1", px).attr("x2", px)
-      .attr("y1", -6).attr("y2", 20)
-      .attr("stroke", "#3a4050").attr("stroke-width", 1);
-    g.append("text")
-      .attr("x", px).attr("y", -10)
-      .attr("text-anchor", "middle")
-      .attr("fill", "#576070").attr("font-size", "10px")
-      .text(ref.label);
-  });
-
-  // global label
-  const gx = Math.min(x(annualKm), iw);
-  g.append("text")
-    .attr("x", gx).attr("y", 32)
-    .attr("text-anchor", gx > iw * 0.75 ? "end" : "middle")
-    .attr("fill", "#ff6b9d").attr("font-size", "11px").attr("font-weight", "600")
-    .text(`${d3.format(",.0f")(annualKm / 1e6)}M km/yr`);
+  const canvasContainer = document.getElementById("a3-q4-three-canvas")!;
+  initGlobalScene(canvasContainer, annualKm);
 }
