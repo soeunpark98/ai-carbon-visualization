@@ -14,7 +14,7 @@ export function renderA3Main(): string {
       <div class="flex items-baseline gap-5 pb-4 border-b border-surface">
         <div class="flex flex-col gap-2">
           <h1 class="text-2xl font-bold text-soft tracking-tight">Visualization 1</h1>
-          <p class="text-lg font-semibold text-soft tracking-tight">Time + geography — data center electricity</p>
+          <p class="text-lg font-semibold text-soft tracking-tight"> <span class="text-[#ff6b9d]">Map + Line Chart:</span> Global and Regional Data Center Electricity Consumption (2020–2030)</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
             How total demand evolved from 2020 to 2024 and how a 2030 baseline projection compares; regional breakdown for major markets (regions do not sum to "World" — different accounting scopes).
             <span class="text-rim">·</span> Datasets: <code class="text-xs text-soft">part2/2a.csv</code>, <code class="text-xs text-soft">part2/2b.csv</code>
@@ -28,7 +28,7 @@ export function renderA3Main(): string {
       <div class="flex items-baseline gap-5 pb-4 border-b border-surface">
         <div class="flex flex-col gap-2">
           <h1 class="text-2xl font-bold text-soft tracking-tight">Visualization 2</h1>
-          <p class="text-lg font-semibold text-soft tracking-tight">Correlation — model size vs training CO₂e</p>
+          <p class="text-lg font-semibold text-soft tracking-tight"><span class="text-[#ff6b9d]">Scatter Plot:</span> Model Size vs. Estimated Training CO₂e (2012–2025)</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
             Relationship between parameter count and estimated training CO₂e for models with release years 2012–2025 (log scales).
             <span class="text-rim">·</span> Dataset: <code class="text-xs text-soft">part3/3a.csv</code>
@@ -42,7 +42,7 @@ export function renderA3Main(): string {
       <div class="flex items-baseline gap-5 pb-4 border-b border-surface">
         <div class="flex flex-col gap-2">
           <h1 class="text-2xl font-bold text-soft tracking-tight">Visualization 3</h1>
-          <p class="text-lg font-semibold text-soft tracking-tight">3-1. Comparative — CO₂e per use &amp; your footprint</p>
+          <p class="text-lg font-semibold text-soft tracking-tight">3-1. <span class="text-[#ff6b9d]">Bar Chart:</span> Comparing the Carbon Footprint of Everyday Digital Activities</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
             Which digital activities produce the most CO₂e per single use — then see how your own AI habits add up over a year.
             <span class="text-rim">·</span> Dataset: <code class="text-xs text-soft">part4/4a.csv</code>
@@ -55,7 +55,7 @@ export function renderA3Main(): string {
       <div class="h-px w-full bg-surface !my-12"></div>
 
       <div class="flex flex-col gap-2">
-        <p class="text-lg font-semibold text-soft tracking-tight">3-2. Your AI carbon footprint</p>
+        <p class="text-lg font-semibold text-soft tracking-tight">3-2. <span class="text-[#ff6b9d]">Interactive Scale Calculator:</span> From Your Query to Global Impact</p>
         <p class="text-sm text-muted leading-relaxed max-w-3xl">
           How does your daily AI usage add up over a year? Enter your habits and see the CO₂e — translated into driving distance.
         </p>
@@ -99,6 +99,22 @@ export function renderA3Main(): string {
       <div id="a3-q4-chart" class="w-full"></div>
 
       <div id="a3-q4-global" class="mt-8 rounded-xl border border-surface bg-[#0f1117] p-6 space-y-4"></div>
+
+      <div class="h-px w-full bg-surface !my-12"></div>
+
+      <div class="flex flex-col gap-2">
+          <p class="text-lg font-semibold text-soft tracking-tight">3-3. <span class="text-[#ff6b9d]">Scrollytelling:</span> The Carbon Weight of Digital Life</p>
+        <p class="text-sm text-muted leading-relaxed max-w-3xl">
+        </p>
+      </div>
+
+      <a href="/digital-carbon/index.html"
+        class="mt-10 flex items-center justify-between gap-4 rounded-xl border border-surface bg-[#0f1117] px-6 py-5 hover:border-[#a8edea]/40 hover:bg-[#131720] transition-all group">
+        <div class="flex flex-col gap-1">
+          <p class="text-base font-semibold text-soft group-hover:text-body transition-colors">The Carbon Weight of Digital Life →</p>
+        </div>
+        <span class="text-2xl text-dim group-hover:text-[#a8edea] transition-colors flex-shrink-0">↗</span>
+      </a>
 
   </div>`;
 }

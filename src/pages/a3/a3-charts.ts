@@ -1010,8 +1010,12 @@ async function runQ3Correlation(): Promise<void> {
     function renderAxesAndPoints() {
       const xTicks = getLogTickValues(xCurrent);
       const yTicks = getLogTickValues(yCurrent);
-      axisX.call(d3.axisBottom(xCurrent).tickValues(xTicks).tickFormat(d3.format("~s")));
-      axisY.call(d3.axisLeft(yCurrent).tickValues(yTicks).tickFormat(d3.format("~s")));
+      axisX.call(
+        d3.axisBottom(xCurrent).tickValues(xTicks).tickFormat(d3.format("~s"))
+      );
+      axisY.call(
+        d3.axisLeft(yCurrent).tickValues(yTicks).tickFormat(d3.format("~s"))
+      );
       drawGrid();
       renderPoints();
     }
