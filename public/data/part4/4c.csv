@@ -1,0 +1,7 @@
+User_type,Queries_per_day,AI_tool,CO2e_per_query_g,Annual_CO2e_g,Annual_CO2e_kg,Equiv_LED_hours,Equiv_car_km,Equiv_netflix_30min
+Light user,3,Gemini,0.03,32.85,0.032850000000000004,164.0,0.2,2.0
+Medium user,10,Gemini,0.03,109.5,0.1095,548.0,0.6,6.0
+Heavy user,30,Gemini,0.03,328.5,0.3285,1642.0,1.9,18.0
+Light user,3,ChatGPT,0.4,438.0,0.438,2190.0,2.5,24.0
+Medium user,10,ChatGPT,0.4,1460.0,1.46,7300.0,8.3,81.0
+Heavy user,30,ChatGPT,4.0,43800.0,43.8,219000.0,250.3,2433.0

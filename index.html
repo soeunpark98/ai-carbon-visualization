@@ -1,123 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>D3 Visualization Experiments</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            page:    '#0f1117',
-            surface: '#1e2130',
-            rim:     '#2e3448',
-            muted:   '#576070',
-            dim:     '#3a4050',
-            soft:    '#c8cfd9',
-            body:    '#e8eaf0',
-          },
-          fontFamily: {
-            sans: ['"Segoe UI"', 'system-ui', '-apple-system', 'sans-serif'],
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HCDE 511 Skye & June</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              page: "#0f1117",
+              surface: "#1e2130",
+              rim: "#2e3448",
+              muted: "#576070",
+              dim: "#3a4050",
+              soft: "#c8cfd9",
+              body: "#e8eaf0",
+            },
+            fontFamily: {
+              sans: ['"Segoe UI"', "system-ui", "-apple-system", "sans-serif"],
+            },
           },
         },
-      },
-    }
-  </script>
-  <script src="d3.v7.min.js"></script>
-  <style>
-    /* SVG class selectors applied by D3 — cannot use Tailwind */
-    .bar-bg   { fill: #1e2130; }
-    .activity-label { font-size: 13px; fill: #c8cfd9; dominant-baseline: middle; text-anchor: end; }
-    .value-label    { font-size: 11.5px; fill: #8b95a8; dominant-baseline: middle; }
-    .axis path, .axis line { stroke: #2a2f42; }
-    .axis text  { fill: #576070; font-size: 11px; }
-    .axis .domain { display: none; }
-    .grid line  { stroke: #1e2130; stroke-dasharray: 3 4; }
-    .grid .domain { display: none; }
-  </style>
-</head>
-
-<body class="bg-page text-body font-sans min-h-screen flex flex-col items-center px-5 py-16">
-
-  <!-- Page header -->
-  <header class="text-center mb-20 max-w-2xl">
-    <p class="text-[11px] tracking-[0.2em] uppercase text-dim mb-3">HCDE 511</p>
-    <h1 class="text-[2rem] font-bold tracking-tight bg-gradient-to-br from-[#a8edea] to-[#fed6e3] bg-clip-text text-transparent">
-      D3 Visualization Experiments
-    </h1>
-  </header>
-
-  <!-- ── Experiment 01 ─────────────────────────────────── -->
-  <section class="w-full max-w-[900px] mb-24" id="exp-01">
-    <div class="flex items-baseline gap-5 mb-7 pb-5 border-b border-surface">
-      <span class="text-[3rem] font-extrabold text-surface leading-none select-none min-w-[68px] text-right">01</span>
-      <div>
-        <p class="text-xl font-semibold text-soft tracking-tight">Carbon Cost of Digital Activities</p>
-        <p class="text-sm text-muted mt-1 leading-relaxed max-w-lg">
-          Estimated CO₂ equivalent emissions per single action — from a Visa swipe to a Bitcoin
-          transaction. Log scale reveals orders-of-magnitude differences. Hover for real-world anchors.
-        </p>
-      </div>
-    </div>
-
-    <div id="chart-01"></div>
-
-    <!-- Legend -->
-    <div class="flex items-center gap-6 mt-5 text-xs text-muted flex-wrap">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-[#a8edea] inline-block"></span>
-        Point estimate
-      </div>
-      <div class="flex items-center gap-2">
-        <svg width="28" height="10" class="overflow-visible">
-          <line x1="0" y1="5" x2="28" y2="5" stroke="#8b95a8" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="0"  y1="1" x2="0"  y2="9" stroke="#8b95a8" stroke-width="2"/>
-          <line x1="28" y1="1" x2="28" y2="9" stroke="#8b95a8" stroke-width="2"/>
-        </svg>
-        Reported range
-      </div>
-    </div>
-
-    <p class="mt-3.5 text-[11px] text-rim">
-      Sources: Google Sustainability Report, IEA, published AI energy estimates. Values are approximate.
-    </p>
-  </section>
-
-  <!-- divider -->
-  <div class="w-full max-w-[900px] h-px bg-gradient-to-r from-transparent via-surface to-transparent mb-24"></div>
-
-  <!-- ── Experiment 02 ─────────────────────────────────── -->
-  <section class="w-full max-w-[900px] mb-24" id="exp-02">
-    <div class="flex items-baseline gap-5 mb-7 pb-5 border-b border-surface">
-      <span class="text-[3rem] font-extrabold text-surface leading-none select-none min-w-[68px] text-right">02</span>
-      <div>
-        <p class="text-xl font-semibold text-soft tracking-tight">Scale at a Glance</p>
-        <p class="text-sm text-muted mt-1 leading-relaxed max-w-lg">
-          Same data, reframed as an annotated dot plot. Human-world comparisons are always
-          visible — above each dot is the activity, below is what that carbon actually feels like.
-        </p>
-      </div>
-    </div>
-
-    <div id="chart-02"></div>
-
-    <p class="mt-3.5 text-[11px] text-rim">
-      Sources: Google Sustainability Report, IEA, published AI energy estimates. Values are approximate.
-    </p>
-  </section>
-
-  <!-- Add experiments below this line -->
-
-  <!-- Shared tooltip -->
-  <div id="tooltip"
-    class="fixed pointer-events-none bg-surface border border-rim rounded-xl px-4 py-3.5
-           text-[13px] max-w-[280px] shadow-[0_8px_32px_rgba(0,0,0,0.5)]
-           opacity-0 transition-opacity duration-150 z-10">
-  </div>
-
-  <script src="js/exp01.js"></script>
-  <script src="js/exp02.js"></script>
-</body>
+      };
+    </script>
+    <script src="/d3.v7.min.js"></script>
+    <style>
+      .bar-bg {
+        fill: #1e2130;
+      }
+      .activity-label {
+        font-size: 13px;
+        fill: #c8cfd9;
+        dominant-baseline: middle;
+        text-anchor: end;
+      }
+      .value-label {
+        font-size: 11.5px;
+        fill: #8b95a8;
+        dominant-baseline: middle;
+      }
+      .axis path,
+      .axis line {
+        stroke: #2a2f42;
+      }
+      .axis text {
+        fill: #576070;
+        font-size: 11px;
+      }
+      .axis .domain {
+        display: none;
+      }
+      .grid line {
+        stroke: #1e2130;
+        stroke-dasharray: 3 4;
+      }
+      .grid .domain {
+        display: none;
+      }
+      .nav-active {
+        color: #e8eaf0;
+        border-bottom: 2px solid #a8edea;
+        padding-bottom: 2px;
+      }
+    </style>
+  </head>
+  <body class="bg-page text-body font-sans min-h-screen">
+    <div
+      id="root"
+      class="flex flex-col items-center px-5 pt-24 pb-16 w-full min-h-screen"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

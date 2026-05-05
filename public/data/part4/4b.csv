@@ -1,0 +1,17 @@
+Scenario,CO2e_per_query_g,Daily_users_M,Period,Days,Total_CO2e_tonnes,Equivalent_car_km,Source
+"Gemini (low, 0.03g)",0.03,35,1 day,1,1.05,6000,Google Sustainability 2025 + DAU 35M
+"Gemini (low, 0.03g)",0.03,35,1 week,7,7.35,42000,Google Sustainability 2025 + DAU 35M
+"Gemini (low, 0.03g)",0.03,35,1 month,30,31.5,180000,Google Sustainability 2025 + DAU 35M
+"Gemini (low, 0.03g)",0.03,35,1 year,365,383.25,2190000,Google Sustainability 2025 + DAU 35M
+"Gemini (high, 0.03g)",0.03,45,1 day,1,1.35,7714,Google Sustainability 2025 + DAU 45M
+"Gemini (high, 0.03g)",0.03,45,1 week,7,9.45,54000,Google Sustainability 2025 + DAU 45M
+"Gemini (high, 0.03g)",0.03,45,1 month,30,40.5,231429,Google Sustainability 2025 + DAU 45M
+"Gemini (high, 0.03g)",0.03,45,1 year,365,492.75,2815714,Google Sustainability 2025 + DAU 45M
+"ChatGPT (low, 0.4g)",0.4,100,1 day,1,40.0,228571,Sci. Reports 2024 + DAU 100M est.
+"ChatGPT (low, 0.4g)",0.4,100,1 week,7,280.0,1600000,Sci. Reports 2024 + DAU 100M est.
+"ChatGPT (low, 0.4g)",0.4,100,1 month,30,1200.0,6857143,Sci. Reports 2024 + DAU 100M est.
+"ChatGPT (low, 0.4g)",0.4,100,1 year,365,14600.0,83428571,Sci. Reports 2024 + DAU 100M est.
+"ChatGPT (high, 4g)",4.0,100,1 day,1,400.0,2285714,Multiple sources + DAU 100M est.
+"ChatGPT (high, 4g)",4.0,100,1 week,7,2800.0,16000000,Multiple sources + DAU 100M est.
+"ChatGPT (high, 4g)",4.0,100,1 month,30,12000.0,68571429,Multiple sources + DAU 100M est.
+"ChatGPT (high, 4g)",4.0,100,1 year,365,146000.0,834285714,Multiple sources + DAU 100M est.

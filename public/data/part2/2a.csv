@@ -1,0 +1,5 @@
+Year,Type,Total_TWh,Hyperscale_TWh,Colocation_TWh,Enterprise_TWh
+2020,Actual,269,100,85,85
+2023,Actual,361,148,112,100
+2024,Actual,416,166,144,106
+2030,Projected (Base),946,378,355,213

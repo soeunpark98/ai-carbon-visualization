@@ -1,0 +1,11 @@
+Activity,CO2e_min_g,CO2e_max_g,Human_anchor,Category,Source,CO2e_mid_g,Is_AI
+Visa transaction,0.00045,0.00045,Invisible to human senses,Finance,Digiconomist,0.00045,False
+Gemini query,0.03,0.03,Less than a Google search,AI,Google Sustainability 2025,0.03,True
+Google search,0.2,0.2,1 sec of LED bulb,Search,Google,0.2,False
+Plain email,0.3,0.3,1 sec of LED bulb,Messaging,Berners-Lee,0.3,False
+ChatGPT query (low),0.4,0.4,2x a Google search,AI,Sci. Reports 2024,0.4,True
+AI image generation,0.5,2.0,1-10 Google searches,AI,MIT Tech Review 2024,1.25,True
+ChatGPT query (high),2.0,4.0,Boiling 5ml of water,AI,Multiple sources,3.0,True
+Netflix 30 min,18.0,18.0,Driving 100m by car,Streaming,IEA 2020,18.0,False
+Zoom 1hr HD,150.0,1000.0,Driving 1-7km by car,Video,Purdue Univ. 2021,575.0,False
+Bitcoin transaction,400000.0,750000.0,"Driving 2,000-4,000km by car",Finance,Digiconomist / DNB,575000.0,False
