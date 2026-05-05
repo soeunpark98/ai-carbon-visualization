@@ -1,3 +1,5 @@
+const BASE = import.meta.env.BASE_URL;
+
 export function renderA3Main(): string {
   return `
   <header class="text-center mb-14 max-w-3xl">
@@ -108,7 +110,7 @@ export function renderA3Main(): string {
         </p>
       </div>
 
-      <a href="/digital-carbon/index.html"
+      <a href="${BASE}digital-carbon/index.html"
         class="mt-10 flex items-center justify-between gap-4 rounded-xl border border-surface bg-[#0f1117] px-6 py-5 hover:border-[#a8edea]/40 hover:bg-[#131720] transition-all group">
         <div class="flex flex-col gap-1">
           <p class="text-base font-semibold text-soft group-hover:text-body transition-colors">The Carbon Weight of Digital Life →</p>
