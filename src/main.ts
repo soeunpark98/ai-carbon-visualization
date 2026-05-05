@@ -1,6 +1,7 @@
 import { renderNav } from "./lib/nav";
 import { renderA3Main } from "./pages/a3/page";
 import { runA3Explore } from "./pages/a3/explore";
+import { runA3Charts } from "./pages/a3/a3-charts";
 import { renderIteration1Main } from "./pages/iteration1/page";
 import { runExp01 } from "./pages/iteration1/exp01";
 import { runExp02 } from "./pages/iteration1/exp02";
@@ -19,6 +20,7 @@ if (view === "a3") {
   document.title = "A3 · Data exploration · 511 viz";
   root.innerHTML = renderNav("a3") + renderA3Main();
   runA3Explore();
+  void runA3Charts();
 } else {
   document.title = "Iteration 1 · D3 Experiments · 511 viz";
   root.innerHTML = renderNav("iteration1") + renderIteration1Main();
