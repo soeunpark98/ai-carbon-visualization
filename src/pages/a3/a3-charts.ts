@@ -1341,25 +1341,25 @@ function runQ4Global(): void {
   const sunTimes = (annualKm / SUN).toFixed(1);
 
   d3.select(mount).html(`
-    <p class="text-xs uppercase tracking-wider text-dim mb-1">At global scale</p>
-    <p class="text-xs text-dim mb-4">
-      100M daily users · 5 short queries/day · 0.4 g CO₂e per query (ChatGPT)
+    <p class="text-xs uppercase tracking-wider text-white mb-1">At global scale</p>
+    <p class="text-lg text-gray-500 mb-4">
+      <span class="text-white font-semibold">100M</span> daily users · <span class="text-soft font-semibold">5</span> short queries/day · <span class="text-soft font-semibold">0.4g</span> CO₂e per query (ChatGPT)
     </p>
     <div class="flex flex-wrap gap-10 mb-6">
       <div>
-        <p class="text-xs text-dim mb-1">Annual CO₂e</p>
+        <p class="text-sm text-soft mb-1">Annual CO₂e</p>
         <p class="text-3xl font-bold text-soft">${d3.format(",.0f")(
           annualG / 1e9
         )} M tonnes</p>
       </div>
       <div>
-        <p class="text-xs text-dim mb-1">≈ driving a car</p>
+        <p class="text-sm text-soft mb-1">≈ driving a car</p>
         <p class="text-3xl font-bold" style="color:#ff6b9d">${d3.format(",.0f")(
           annualKm / 1e6
         )} M km</p>
       </div>
-      <div class="self-end pb-0.5">
-        <p class="text-sm text-muted">= Earth → Sun × <span class="text-soft font-semibold">${sunTimes}</span></p>
+      <div class="self-end pb-0.5"> =
+        <p class="text-3xl font-bold" style="color:#ff6b9d""> Earth ↔︎ Sun<span class="text-soft font-semibold"> × ${sunTimes}</span></p>
       </div>
     </div>
     <div id="a3-q4-three-canvas" style="width:100%;border-radius:12px;overflow:hidden;"></div>

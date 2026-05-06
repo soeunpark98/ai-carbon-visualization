@@ -5,9 +5,6 @@ export function renderA3Main(): string {
   <header class="text-center mb-14 max-w-3xl">
     <p class="text-xs tracking-[0.2em] uppercase text-gray-500 mb-3">A3: Exploratory Data Analysis</p>
     <h1 class="text-[2rem] font-bold tracking-tight bg-gradient-to-br from-[#a8edea] to-[#fed6e3] bg-clip-text text-transparent">The Hidden Cost of AI</h1>
-    <p class="text-sm text-muted mt-4 leading-relaxed max-w-2xl mx-auto">
-      Four views derived from assignment datasets — grid-scale trajectories, training footprint vs model size, comparative intensity, and population-scale AI emissions.
-    </p>
   </header>
 
   <div class="w-full max-w-[1100px] space-y-32 divide-y divide-white/50 [&>*]:pt-16 first:[&>*]:pt-0">
@@ -19,7 +16,6 @@ export function renderA3Main(): string {
           <p class="text-lg font-semibold text-soft tracking-tight"> <span class="text-[#ff6b9d]">Map + Line Chart:</span> Global and Regional Data Center Electricity Consumption (2020–2030)</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
             How total demand evolved from 2020 to 2024 and how a 2030 baseline projection compares; regional breakdown for major markets (regions do not sum to "World" — different accounting scopes).
-            <span class="text-rim">·</span> Datasets: <code class="text-xs text-soft">part2/2a.csv</code>, <code class="text-xs text-soft">part2/2b.csv</code>
           </p>
         </div>
       </div>
@@ -33,7 +29,6 @@ export function renderA3Main(): string {
           <p class="text-lg font-semibold text-soft tracking-tight"><span class="text-[#ff6b9d]">Scatter Plot:</span> Model Size vs. Estimated Training CO₂e (2012–2025)</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
             Relationship between parameter count and estimated training CO₂e for models with release years 2012–2025 (log scales).
-            <span class="text-rim">·</span> Dataset: <code class="text-xs text-soft">part3/3a.csv</code>
           </p>
         </div>
       </div>
@@ -47,7 +42,6 @@ export function renderA3Main(): string {
           <p class="text-lg font-semibold text-soft tracking-tight">3-1. <span class="text-[#ff6b9d]">Bar Chart:</span> Comparing the Carbon Footprint of Everyday Digital Activities</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
             Which digital activities produce the most CO₂e per single use — then see how your own AI habits add up over a year.
-            <span class="text-rim">·</span> Dataset: <code class="text-xs text-soft">part4/4a.csv</code>
           </p>
         </div>
       </div>
