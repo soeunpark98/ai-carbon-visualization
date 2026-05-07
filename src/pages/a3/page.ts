@@ -15,7 +15,8 @@ export function renderA3Main(): string {
           <h1 class="text-2xl font-bold text-soft tracking-tight">Visualization 1</h1>
           <p class="text-lg font-semibold text-soft tracking-tight"> <span class="text-[#ff6b9d]">Map + Line Chart:</span> Global and Regional Data Center Electricity Consumption (2020–2030)</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
-            How total demand evolved from 2020 to 2024 and how a 2030 baseline projection compares; regional breakdown for major markets (regions do not sum to "World" — different accounting scopes).
+            The map at the top gives a regional overview by highlighting electricity consumption across different parts of the world. Users can switch between the buttons on the top right to view actual electricity consumption data from 2020, 2023, and 2024, or projected values for 2030.
+            Since it's difficult to understand growth trends from the map alone, we added the line chart below to show how electricity demand changes over time by region. This makes it easier to compare trends year by year. 
           </p>
         </div>
       </div>
@@ -28,8 +29,7 @@ export function renderA3Main(): string {
           <h1 class="text-2xl font-bold text-soft tracking-tight">Visualization 2</h1>
           <p class="text-lg font-semibold text-soft tracking-tight"><span class="text-[#ff6b9d]">Scatter Plot:</span> Model Size vs. Estimated Training CO₂e (2012–2025)</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
-            Relationship between parameter count and estimated training CO₂e for models with release years 2012–2025 (log scales).
-          </p>
+            This scatterplot shows the relationship between AI model size and estimated training carbon emissions over time. The x-axis represents the number of model parameters, while the y-axis shows estimated training CO2 emissions in kilograms. Each dot represents an AI model, and the color indicates the year the model was released, from earlier models in purple to more recent models in yellow. Users can zoom and pan to explore the distribution in more detail, and the year slider allows filtering models by release year.          </p>
         </div>
       </div>
       <div id="a3-q3" class="min-h-[380px] w-full overflow-x-auto"></div>
@@ -41,8 +41,7 @@ export function renderA3Main(): string {
           <h1 class="text-2xl font-bold text-soft tracking-tight">Visualization 3</h1>
           <p class="text-lg font-semibold text-soft tracking-tight">3-1. <span class="text-[#ff6b9d]">Bar Chart:</span> Comparing the Carbon Footprint of Everyday Digital Activities</p>
           <p class="text-sm text-muted leading-relaxed max-w-3xl">
-            Which digital activities produce the most CO₂e per single use — then see how your own AI habits add up over a year.
-          </p>
+            This chart compares the estimated carbon emissions of AI-related activities with other everyday digital and physical actions. The x-axis uses a logarithmic scale to show a very wide range of CO2e values, from tiny emissions like a Visa transaction to much larger activities like streaming video or driving.          </p>
         </div>
       </div>
       <div id="a3-q1" class="min-h-[200px] w-full"></div>
@@ -53,8 +52,10 @@ export function renderA3Main(): string {
       <div class="flex flex-col gap-2">
         <p class="text-lg font-semibold text-soft tracking-tight">3-2. <span class="text-[#ff6b9d]">Interactive Scale Calculator:</span> From Your Query to Global Impact</p>
         <p class="text-sm text-muted leading-relaxed max-w-3xl">
-          How does your daily AI usage add up over a year? Enter your habits and see the CO₂e — translated into driving distance.
+          This interactive calculator helps users understand how their everyday AI usage adds up over time. Users can select an AI tool, adjust the number of daily queries, and choose different query lengths to estimate their annual CO2 emissions. The result is displayed as a bar chart showing the estimated carbon footprint of different activities, from short queries to long ones, and from different AI tools.
         </p>
+        <p class="text-sm text-muted leading-relaxed max-w-3xl">
+          The global carbon footprint section at the bottom shows how small individual AI usage can scale up globally. For example, if 100 million users send 5 short ChatGPT queries every day, the annual carbon emissions would be equivalent to driving about 487 million km, which is roughly the same as traveling between Earth and the Sun <span class="text-soft font-semibold">3.3 times</span>.        </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 rounded-xl border border-surface bg-[#0f1117] p-6">
