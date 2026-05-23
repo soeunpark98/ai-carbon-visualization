@@ -52,10 +52,11 @@ export function renderA3Main(): string {
       <div class="flex flex-col gap-2">
         <p class="text-lg font-semibold text-soft tracking-tight">3-2. <span class="text-[#ff6b9d]">Interactive Scale Calculator:</span> From Your Query to Global Impact</p>
         <p class="text-sm text-muted leading-relaxed max-w-3xl">
-          This interactive calculator helps users understand how their everyday AI usage adds up over time. Users can select an AI tool, adjust the number of daily queries, and choose different query lengths to estimate their annual CO2 emissions. The result is displayed as a bar chart showing the estimated carbon footprint of different activities, from short queries to long ones, and from different AI tools.
+          This interactive calculator helps users understand how their everyday AI usage adds up over time. Users can select an AI tool, adjust the number of daily queries, and choose different query lengths to estimate their annual CO2 emissions.
         </p>
         <p class="text-sm text-muted leading-relaxed max-w-3xl">
-          The global carbon footprint section at the bottom shows how small individual AI usage can scale up globally. For example, if 100 million users send 5 short ChatGPT queries every day, the annual carbon emissions would be equivalent to driving about 487 million km, which is roughly the same as traveling between Earth and the Sun <span class="text-soft font-semibold">3.3 times</span>.        </p>
+          The global carbon footprint section at the bottom shows how small individual AI usage can scale up globally. For example, if 100 million users send 5 short ChatGPT queries every day, the annual carbon emissions would be equivalent to driving about 487 million km, which is roughly the same as traveling between Earth and the Sun <span class="text-soft font-semibold">3.3 times</span>.
+        </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 rounded-xl border border-surface bg-[#0f1117] p-6">
