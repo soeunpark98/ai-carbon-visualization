@@ -29,7 +29,7 @@ html {
 
 body {
   margin: 0;
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Geist", system-ui, -apple-system, sans-serif;
   color: var(--ink);
   background:
     radial-gradient(circle at top, rgba(50, 213, 131, 0.12), transparent 24%),
@@ -55,7 +55,7 @@ body {
 .step-label,
 .source-note,
 .showcase-step {
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Geist", system-ui, -apple-system, sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -325,7 +325,7 @@ body {
 
 .showcase-tier {
   margin: 1rem 0 0;
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Geist", system-ui, -apple-system, sans-serif;
   font-size: 0.82rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;

@@ -1,4 +1,4 @@
-export type NavKey = "iteration1" | "a3" | "rawdata";
+export type NavKey = "iteration1" | "a3" | "final" | "rawdata";
 
 export function renderNav(active: NavKey): string {
   function cls(key: NavKey) {
@@ -13,6 +13,7 @@ export function renderNav(active: NavKey): string {
       <ul class="flex items-center gap-6 text-sm">
         <li><a href="index.html" class="${cls("iteration1")}">Interactions (04/29)</a></li>
         <li><a href="index.html?view=a3" class="${cls("a3")}">Exploratory Data Analysis (05/05)</a></li>
+        <li><a href="index.html?view=final" class="${cls("final")}">Final</a></li>
         <li><a href="index.html?view=rawdata" class="${cls("rawdata")}">Raw Data</a></li>
       </ul>
     </div>

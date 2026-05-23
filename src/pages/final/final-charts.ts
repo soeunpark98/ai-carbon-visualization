@@ -1,5 +1,5 @@
 /** D3 is provided globally via index.html (d3.v7). */
-import { initGlobalScene } from "./global-scene";
+import { initGlobalScene } from "../a3/global-scene";
 
 type RowQ1 = {
   activity: string;
@@ -10,7 +10,7 @@ type RowQ1 = {
   isRef?: boolean;
 };
 
-export async function runA3Charts(): Promise<void> {
+export async function runFinalCharts(): Promise<void> {
   await Promise.all([
     runQ1Comparative(),
     runQ2Datacenter(),
@@ -21,7 +21,7 @@ export async function runA3Charts(): Promise<void> {
 }
 
 async function runQ1Comparative(): Promise<void> {
-  const mount = "#a3-q1";
+  const mount = "#final-q1";
   const root = document.querySelector(mount);
   if (!root) return;
   d3.select(mount).html("");
@@ -259,8 +259,8 @@ async function runQ1Comparative(): Promise<void> {
 }
 
 async function runQ2Datacenter(): Promise<void> {
-  const lineMount = "#a3-q2-line";
-  const barMount = "#a3-q2-regions";
+  const lineMount = "#final-q2-line";
+  const barMount = "#final-q2-regions";
   const root = document.querySelector<HTMLElement>(lineMount);
   if (!root) return;
   d3.select(lineMount).html("");
@@ -276,9 +276,9 @@ async function runQ2Datacenter(): Promise<void> {
       .q2dc-kpi-label{font-size:11px;color:#576070;margin-bottom:3px}
       .q2dc-kpi-val{font-size:18px;font-weight:500;color:#c8cfd9}
       .q2dc-kpi-sub{font-size:10px;color:#3a4050;margin-top:1px}
-      .q2dc-card{background:#0f1117;border:0.5px solid #2e3448;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem}
-      .q2dc-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-      .q2dc-sec-title{font-size:12px;font-weight:500;color:#576070}
+      .q2dc-card{background:#0f1117;border:0.5px solid #2e3448;border-radius:12px;padding:1.5rem 1.25rem;margin-bottom:1.5rem}
+      .q2dc-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+      .q2dc-sec-title{font-size:16px;font-weight:500;color:#fffff}
       .q2dc-ytabs{display:flex;gap:3px}
       .q2dc-ytab{font-size:11px;padding:3px 9px;border-radius:5px;border:0.5px solid #2e3448;cursor:pointer;background:transparent;color:#576070;transition:all .12s}
       .q2dc-ytab.on{background:#1e2130;color:#c8cfd9;border-color:#3a4050}
@@ -301,14 +301,6 @@ async function runQ2Datacenter(): Promise<void> {
     { name: string; color: string; ids: number[] }
   > = {
     us: { name: "United States", color: "#378ADD", ids: [840] },
-    csa: {
-      name: "Central and South America",
-      color: "#E07A2D",
-      ids: [
-        32, 68, 76, 152, 170, 188, 192, 214, 218, 222, 320, 328, 332, 340, 388,
-        484, 558, 591, 600, 604, 630, 740, 780, 858, 862,
-      ],
-    },
     eu: {
       name: "Europe",
       color: "#1D9E75",
@@ -317,49 +309,36 @@ async function runQ2Datacenter(): Promise<void> {
         203, 616, 348, 642, 100, 191, 703, 705, 233, 428, 440,
       ],
     },
-    af: {
-      name: "Africa",
-      color: "#17A2B8",
-      ids: [
-        12, 24, 72, 108, 120, 132, 140, 148, 174, 180, 178, 262, 818, 226, 232,
-        231, 266, 270, 288, 324, 624, 384, 404, 426, 430, 434, 450, 454, 466, 478,
-        480, 504, 508, 516, 562, 566, 646, 678, 686, 690, 694, 706, 710, 728, 729,
-        748, 768, 788, 800, 834, 894, 716,
-      ],
-    },
-    me: {
-      name: "Middle East",
-      color: "#C864D8",
-      ids: [48, 364, 368, 376, 400, 414, 422, 512, 634, 682, 760, 784, 887, 792],
-    },
     cn: { name: "China", color: "#D85A30", ids: [156] },
     ap: {
       name: "Asia Pacific",
       color: "#7F77DD",
       ids: [
-        36, 50, 96, 104, 116, 144, 356, 360, 392, 410, 418, 458, 496, 524, 554, 586,
+        36, 50, 96, 104, 116, 356, 360, 392, 410, 418, 458, 496, 524, 554, 586,
         598, 608, 702, 704, 764,
       ],
     },
   };
   const DATA: Record<string, Record<number, number>> = {
     us: { 2020: 108, 2023: 154, 2024: 183, 2030: 426 },
-    csa: { 2020: 1.5, 2023: 1.5, 2024: 1.7, 2030: 3.3 },
     eu: { 2020: 57, 2023: 66, 2024: 68, 2030: 113 },
-    af: { 2020: 1.1, 2023: 1.3, 2024: 1.4, 2030: 2.9 },
-    me: { 2020: 1.1, 2023: 1.3, 2024: 1.5, 2030: 3.0 },
     cn: { 2020: 62, 2023: 84, 2024: 102, 2030: 277 },
     ap: { 2020: 93, 2023: 128, 2024: 150, 2030: 378 },
   };
-  const MAX_BY_RK: Record<string, number> = {
-    us: 426,
-    csa: 3.3,
-    eu: 113,
-    af: 2.9,
-    me: 3.0,
-    cn: 277,
-    ap: 378,
-  };
+  const GLOBAL_COLOR = "#e879f9";
+  const GLOBAL_TREND: { x: number; y: number }[] = [
+    { x: 2020, y: 269 },
+    { x: 2024, y: 416 },
+    { x: 2030, y: 946 },
+  ];
+  const MAP_FILL_LOW = "#0c0e14";
+  const MAP_FILL_HIGH = "#b8fff8";
+  const MAP_COLOR_YEAR = 2030;
+  const MAP_MAX_TWH = Math.max(
+    ...Object.values(DATA).flatMap((byYear) => Object.values(byYear))
+  );
+  /** EU TWh is lower than US/AP — floor keeps it readable on the shared scale. */
+  const MAP_VISUAL_FLOOR: Partial<Record<string, number>> = { eu: 0.5 };
   const ID_TO_RK: Record<number, string> = {};
   Object.entries(REGIONS).forEach(([k, v]) =>
     v.ids.forEach((id) => {
@@ -367,18 +346,98 @@ async function runQ2Datacenter(): Promise<void> {
     })
   );
 
+  /** Mainland bounds — overseas territories (e.g. French Guiana, Falklands) stay uncolored. */
+  const REGION_MAINLAND: Record<
+    string,
+    { minLon: number; maxLon: number; minLat: number; maxLat: number }
+  > = {
+    us: { minLon: -170, maxLon: -66, minLat: 18, maxLat: 72 },
+    eu: { minLon: -12, maxLon: 42, minLat: 35, maxLat: 72 },
+    cn: { minLon: 73, maxLon: 135, minLat: 18, maxLat: 54 },
+    ap: { minLon: 60, maxLon: 180, minLat: -50, maxLat: 55 },
+  };
+
+  function inMainland(
+    lon: number,
+    lat: number,
+    box: { minLon: number; maxLon: number; minLat: number; maxLat: number }
+  ) {
+    return (
+      lon >= box.minLon &&
+      lon <= box.maxLon &&
+      lat >= box.minLat &&
+      lat <= box.maxLat
+    );
+  }
+
+  function explodeMapFeatures(features: any[]): any[] {
+    const out: any[] = [];
+    for (const f of features) {
+      const g = f.geometry;
+      if (!g) continue;
+      if (g.type === "MultiPolygon") {
+        for (const coords of g.coordinates) {
+          out.push({
+            ...f,
+            geometry: { type: "Polygon", coordinates: coords },
+          });
+        }
+      } else {
+        out.push(f);
+      }
+    }
+    return out;
+  }
+
+  function regionForFeature(f: any): string | undefined {
+    const rk = ID_TO_RK[+f.id];
+    if (!rk) return undefined;
+    const box = REGION_MAINLAND[rk];
+    if (!box) return rk;
+    const [lon, lat] = d3.geoCentroid(f);
+    if (!inMainland(lon, lat, box)) return undefined;
+    return rk;
+  }
+
+  function getMapFeatures(): any[] {
+    const topo = (window as any).topojson;
+    const countries = topo.feature(worldData, worldData.objects.countries);
+    return explodeMapFeatures((countries as any).features);
+  }
+
+  function computeLabelCentroids(
+    mapFeatures: any[],
+    proj: (coords: [number, number]) => [number, number] | null
+  ): Record<string, [number, number]> {
+    const pts: Record<string, [number, number][]> = {};
+    for (const f of mapFeatures) {
+      const rk = regionForFeature(f);
+      if (!rk) continue;
+      const p = proj(d3.geoCentroid(f));
+      if (!p) continue;
+      (pts[rk] ||= []).push(p);
+    }
+    const out: Record<string, [number, number]> = {};
+    Object.entries(pts).forEach(([rk, list]) => {
+      out[rk] = [d3.mean(list, (p) => p[0])!, d3.mean(list, (p) => p[1])!];
+    });
+    return out;
+  }
+
   // ── State ──────────────────────────────────────────────────────────────
   let selYear = 2030;
-  let chartMode: "line" | "bar" = "line";
   const dimmed: Record<string, boolean> = {};
-  let chartInst: any = null;
+  let dimmedGlobal = false;
+  let trendChartInst: any = null;
+  let compareChartInst: any = null;
   let worldData: any = null;
+  let labelCentroids: Record<string, [number, number]> = {};
 
   // ── HTML ───────────────────────────────────────────────────────────────
   root.innerHTML = `
     <div class="q2dc-card" style="position:relative">
       <div class="q2dc-row-header">
-        <span class="q2dc-sec-title">Regional electricity — map view</span>
+        <span class="q2dc-sec-title">2-1. Regional Data Center Electricity Consumption Map</span>
         <div class="q2dc-ytabs" id="q2dc-ytabs">
           <button class="q2dc-ytab" data-year="2020">2020</button>
           <button class="q2dc-ytab" data-year="2023">2023</button>
@@ -387,55 +446,57 @@ async function runQ2Datacenter(): Promise<void> {
         </div>
       </div>
       <div id="q2dc-map-wrap" style="position:relative;width:100%;background:#1e2130;border-radius:8px;overflow:hidden"></div>
-      <div class="q2dc-legend-row" id="q2dc-map-legend"></div>
       <div id="q2dc-map-tt" class="q2dc-tt"></div>
     </div>
     <div class="q2dc-card" style="position:relative">
       <div class="q2dc-row-header">
-        <span class="q2dc-sec-title">Global trend + regional breakdown — click year to sync map</span>
-        <div style="display:flex;gap:3px">
-          <button class="q2dc-ytab on" id="q2dc-btn-line">Trend</button>
-          <button class="q2dc-ytab" id="q2dc-btn-bar">Compare</button>
-        </div>
+        <span class="q2dc-sec-title">2-2. Global and Regional Data Center Electricity Consumption Trends</span>
+      </div>
+      <p class="text-xs text-dim mb-2 mt-1">Trend</p>
+      <div style="position:relative;height:220px">
+        <canvas id="q2dc-trend-chart"></canvas>
+      </div>
+      <div class="q2dc-legend-row" id="q2dc-chart-legend"></div>
+    </div>
+    <div class="q2dc-card" style="position:relative">
+      <div class="q2dc-row-header">
+        <span class="q2dc-sec-title">2-3. Regional Data Center Electricity Consumption Breakdown</span>
       </div>
       <div style="position:relative;height:220px">
-        <canvas id="q2dc-main-chart"></canvas>
-      </div>
-      <div class="q2dc-proj-label">
-        <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="#576070" stroke-width="1.5" stroke-dasharray="4 3"/></svg>
-        dashed = 2030 baseline projection
+        <canvas id="q2dc-compare-chart"></canvas>
       </div>
       <div class="q2dc-legend-row" id="q2dc-chart-legend"></div>
     </div>
   `;
 
   // ── Helpers ────────────────────────────────────────────────────────────
-  function getColor(rk: string | undefined, year: number): string {
+  /** Map color fixed to 2030 TWh; year tabs only change labels/tooltips. */
+  function getMapFill(rk: string | undefined): string {
     if (!rk || dimmed[rk]) return "#2a2f42";
-    const t = DATA[rk][year] / MAX_BY_RK[rk];
-    return d3.interpolateRgb(
-      "#1e2130",
-      REGIONS[rk].color
-    )(0.2 + t * 0.8) as string;
+    let tRaw = DATA[rk][MAP_COLOR_YEAR] / MAP_MAX_TWH;
+    const floor = MAP_VISUAL_FLOOR[rk];
+    if (floor != null) tRaw = Math.max(tRaw, floor);
+    const gamma = rk === "eu" ? 1.8 : 1.35;
+    const t = Math.pow(tRaw, gamma);
+    return d3.interpolateHcl(MAP_FILL_LOW, MAP_FILL_HIGH)(t) as string;
   }
 
-  const LABEL_POS: Record<string, (W: number, H: number) => [number, number]> =
-    {
-      us: (W, H) => [W * 0.18, H * 0.37],
-      csa: (W, H) => [W * 0.28, H * 0.62],
-      eu: (W, H) => [W * 0.49, H * 0.28],
-      af: (W, H) => [W * 0.50, H * 0.53],
-      me: (W, H) => [W * 0.58, H * 0.41],
-      cn: (W, H) => [W * 0.72, H * 0.38],
-      ap: (W, H) => [W * 0.82, H * 0.48],
-    };
+  const LABEL_FALLBACK: Record<
+    string,
+    (W: number, H: number) => [number, number]
+  > = {
+    us: (W, H) => [W * 0.22, H * 0.38],
+    eu: (W, H) => [W * 0.52, H * 0.32],
+    cn: (W, H) => [W * 0.74, H * 0.4],
+    ap: (W, H) => [W * 0.78, H * 0.58],
+  };
 
   function drawLabels(layer: any, W: number, H: number) {
     layer.selectAll(".rlabel").remove();
     const fs = Math.max(10, Math.round(W / 55));
     Object.entries(REGIONS).forEach(([rk]) => {
       if (dimmed[rk]) return;
-      const [cx, cy] = LABEL_POS[rk](W, H);
+      const [cx, cy] = labelCentroids[rk] ?? LABEL_FALLBACK[rk](W, H);
       layer
         .append("rect")
         .attr("class", "rlabel")
@@ -479,20 +540,22 @@ async function runQ2Datacenter(): Promise<void> {
       .attr("viewBox", `0 0 ${W} ${H}`);
     const mapLayer = svg.append("g").attr("class", "q2dc-map-layer");
     const labelLayer = svg.append("g").attr("class", "q2dc-label-layer");
-    const topo = (window as any).topojson;
-    const countries = topo.feature(worldData, worldData.objects.countries);
+    const mapFeatures = getMapFeatures();
+    labelCentroids = computeLabelCentroids(mapFeatures, proj);
 
     mapLayer
       .selectAll("path")
-      .data((countries as any).features)
+      .data(mapFeatures)
       .join("path")
       .attr("d", path as any)
-      .attr("fill", (d: any) => getColor(ID_TO_RK[+d.id], selYear))
+      .attr("fill", (d: any) => getMapFill(regionForFeature(d)))
       .attr("stroke", "rgba(255,255,255,0.08)")
       .attr("stroke-width", 0.4)
-      .style("cursor", (d: any) => (ID_TO_RK[+d.id] ? "pointer" : "default"))
+      .style("cursor", (d: any) =>
+        regionForFeature(d) ? "pointer" : "default"
+      )
       .on("mousemove", (event: MouseEvent, d: any) => {
-        const rk = ID_TO_RK[+d.id];
+        const rk = regionForFeature(d);
         if (!rk) {
           mapTt.style.opacity = "0";
           return;
@@ -547,7 +610,7 @@ async function runQ2Datacenter(): Promise<void> {
     const H = Math.round(W * 0.5);
     svg
       .selectAll("path")
-      .attr("fill", (d: any) => getColor(ID_TO_RK[+d.id], selYear));
+      .attr("fill", (d: any) => getMapFill(regionForFeature(d)));
     drawLabels(svg.select(".q2dc-label-layer"), W, H);
   }
 
@@ -560,194 +623,212 @@ async function runQ2Datacenter(): Promise<void> {
   }
 
   function buildLegend() {
-    ["q2dc-map-legend", "q2dc-chart-legend"].forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.innerHTML = "";
-      Object.entries(REGIONS).forEach(([k, v]) => {
-        const item = document.createElement("div");
-        item.className = "q2dc-leg" + (dimmed[k] ? " dim" : "");
-        item.innerHTML = `<span class="q2dc-lsq" style="background:${v.color}"></span>${v.name}`;
-        item.onclick = () => {
-          dimmed[k] = !dimmed[k];
-          buildLegend();
-          updateMap();
-          rebuildChart();
-        };
-        el.appendChild(item);
-      });
+    const el = document.getElementById("q2dc-chart-legend");
+    if (!el) return;
+    el.innerHTML = "";
+    const globalItem = document.createElement("div");
+    globalItem.className = "q2dc-leg" + (dimmedGlobal ? " dim" : "");
+    globalItem.innerHTML = `<span class="q2dc-lsq" style="background:${GLOBAL_COLOR}"></span>Global`;
+    globalItem.onclick = () => {
+      dimmedGlobal = !dimmedGlobal;
+      buildLegend();
+      rebuildCharts();
+    };
+    el.appendChild(globalItem);
+    Object.entries(REGIONS).forEach(([k, v]) => {
+      const item = document.createElement("div");
+      item.className = "q2dc-leg" + (dimmed[k] ? " dim" : "");
+      item.innerHTML = `<span class="q2dc-lsq" style="background:${v.color}"></span>${v.name}`;
+      item.onclick = () => {
+        dimmed[k] = !dimmed[k];
+        buildLegend();
+        updateMap();
+        rebuildCharts();
+      };
+      el.appendChild(item);
     });
   }
 
   const GRID_C = "rgba(255,255,255,0.07)";
   const TEXT_C = "#576070";
   const YEARS = [2020, 2023, 2024, 2030];
+  const YEAR_X_MIN = 2019.6;
+  const YEAR_X_MAX = 2030.4;
 
-  function rebuildChart() {
-    if (chartInst) {
-      chartInst.destroy();
-      chartInst = null;
-    }
-    const canvas = document.getElementById(
-      "q2dc-main-chart"
-    ) as HTMLCanvasElement | null;
-    if (!canvas) return;
-    const ChartJS = (window as any).Chart;
-    if (!ChartJS) return;
-    const ctx = canvas.getContext("2d")!;
-    const ttOpts = {
+  function chartXScale() {
+    return {
+      type: "linear" as const,
+      min: YEAR_X_MIN,
+      max: YEAR_X_MAX,
+      grid: { color: GRID_C },
+      ticks: {
+        color: TEXT_C,
+        font: { size: 11 },
+        autoSkip: false,
+        callback: (value: number | string) => {
+          const y = Math.round(Number(value));
+          return YEARS.includes(y) ? String(y) : "";
+        },
+      },
+      afterBuildTicks: (axis: { ticks: { value: number }[] }) => {
+        axis.ticks = YEARS.map((y) => ({ value: y }));
+      },
+    };
+  }
+
+  function yearFromTrendClick(els: { datasetIndex: number; index: number }[]) {
+    if (!els.length || !trendChartInst) return;
+    const pt =
+      trendChartInst.data.datasets[els[0].datasetIndex].data[els[0].index];
+    const year =
+      pt && typeof pt === "object" && "x" in pt
+        ? Math.round(Number(pt.x))
+        : null;
+    if (year != null && YEARS.includes(year)) setYear(year);
+  }
+
+  function chartTooltipOpts() {
+    return {
       backgroundColor: "#0f1117",
       borderColor: GRID_C,
       borderWidth: 1,
       titleColor: "#c8cfd9",
       bodyColor: TEXT_C,
     };
+  }
 
-    if (chartMode === "line") {
-      chartInst = new ChartJS(ctx, {
-        type: "line",
-        data: {
-          labels: ["2020", "2023", "2024", "2030"],
-          datasets: [
-            {
-              label: "Global actual",
-              data: [269, null, 416, null],
-              borderColor: "#1D9E75",
-              backgroundColor: "rgba(29,158,117,0.08)",
-              borderWidth: 2.5,
-              fill: true,
-              tension: 0.3,
-              pointRadius: [5, 0, 5, 0],
-              pointBackgroundColor: "#fff",
-              pointBorderColor: "#1D9E75",
-              pointBorderWidth: 2,
-              yAxisID: "y",
-            },
-            {
-              label: "Global projection",
-              data: [null, null, 416, 946],
-              borderColor: "#EF9F27",
-              backgroundColor: "rgba(239,159,39,0.05)",
-              borderWidth: 2,
-              borderDash: [6, 4],
-              fill: true,
-              tension: 0.3,
-              pointRadius: [0, 0, 0, 6],
-              pointBackgroundColor: "#fff",
-              pointBorderColor: "#EF9F27",
-              pointBorderWidth: 2,
-              yAxisID: "y",
-            },
-            ...Object.entries(REGIONS)
-              .filter(([k]) => !dimmed[k])
-              .map(([k, v]) => ({
-                label: v.name,
-                data: YEARS.map((y) => DATA[k][y]),
-                borderColor: v.color,
-                backgroundColor: "transparent",
-                borderWidth: 1.5,
-                tension: 0.3,
-                pointRadius: 3,
-                pointBackgroundColor: v.color,
-                yAxisID: "y2",
-              })),
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              ...ttOpts,
-              callbacks: {
-                label: (c: any) => ` ${c.dataset.label}: ${c.parsed.y} TWh`,
-              },
-            },
-          },
-          scales: {
-            x: {
-              grid: { color: GRID_C },
-              ticks: { color: TEXT_C, font: { size: 11 } },
-            },
-            y: {
-              grid: { color: GRID_C },
-              position: "left",
-              ticks: {
-                color: TEXT_C,
-                font: { size: 10 },
-                callback: (v: number) => v + " TWh",
-              },
-              min: 0,
-              max: 1100,
-              title: {
-                display: true,
-                text: "Global",
-                color: TEXT_C,
-                font: { size: 10 },
-              },
-            },
-            y2: {
-              grid: { display: false },
-              position: "right",
-              ticks: {
-                color: TEXT_C,
-                font: { size: 10 },
-                callback: (v: number) => v + " TWh",
-              },
-              min: 0,
-              max: 500,
-              title: {
-                display: true,
-                text: "Regional",
-                color: TEXT_C,
-                font: { size: 10 },
-              },
-            },
-          },
-          onClick(_e: any, els: any[]) {
-            if (els.length) setYear(YEARS[els[0].index]);
-          },
-        },
-      });
-    } else {
-      chartInst = new ChartJS(ctx, {
-        type: "bar",
-        data: {
-          labels: ["2020", "2023", "2024", "2030"],
-          datasets: Object.entries(REGIONS)
-            .filter(([k]) => !dimmed[k])
-            .map(([k, v]) => ({
-              label: v.name,
-              data: YEARS.map((y) => DATA[k][y]),
-              backgroundColor: v.color,
-              borderRadius: 3,
-            })),
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: ttOpts },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { color: TEXT_C, font: { size: 11 } },
-            },
-            y: {
-              grid: { color: GRID_C },
-              ticks: {
-                color: TEXT_C,
-                font: { size: 10 },
-                callback: (v: number) => v + " TWh",
-              },
-            },
-          },
-          onClick(_e: any, els: any[]) {
-            if (els.length) setYear(YEARS[els[0].index]);
-          },
-        },
-      });
+  function rebuildTrendChart() {
+    if (trendChartInst) {
+      trendChartInst.destroy();
+      trendChartInst = null;
     }
+    const canvas = document.getElementById(
+      "q2dc-trend-chart"
+    ) as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const ChartJS = (window as any).Chart;
+    if (!ChartJS) return;
+    const ttOpts = chartTooltipOpts();
+    const regionalDatasets = Object.entries(REGIONS)
+      .filter(([k]) => !dimmed[k])
+      .map(([k, v]) => ({
+        label: v.name,
+        data: YEARS.map((y) => ({ x: y, y: DATA[k][y] })),
+        borderColor: v.color,
+        backgroundColor: "transparent",
+        borderWidth: 1.5,
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: v.color,
+        order: 1,
+      }));
+    const globalDataset = dimmedGlobal
+      ? []
+      : [
+          {
+            label: "Global",
+            data: GLOBAL_TREND,
+            borderColor: GLOBAL_COLOR,
+            backgroundColor: "transparent",
+            borderWidth: 2.5,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: GLOBAL_COLOR,
+            order: 0,
+          },
+        ];
+
+    trendChartInst = new ChartJS(canvas.getContext("2d")!, {
+      type: "line",
+      data: { datasets: [...globalDataset, ...regionalDatasets] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            ...ttOpts,
+            callbacks: {
+              label: (c: any) => ` ${c.dataset.label}: ${c.parsed.y} TWh`,
+            },
+          },
+        },
+        scales: {
+          x: chartXScale(),
+          y: {
+            grid: { color: GRID_C },
+            ticks: {
+              color: TEXT_C,
+              font: { size: 10 },
+              callback: (v: number) => v + " TWh",
+            },
+            min: 0,
+            max: 1000,
+          },
+        },
+        onClick(_e: any, els: any[]) {
+          yearFromTrendClick(els);
+        },
+      },
+    });
+  }
+
+  function rebuildCompareChart() {
+    if (compareChartInst) {
+      compareChartInst.destroy();
+      compareChartInst = null;
+    }
+    const canvas = document.getElementById(
+      "q2dc-compare-chart"
+    ) as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const ChartJS = (window as any).Chart;
+    if (!ChartJS) return;
+    const ttOpts = chartTooltipOpts();
+
+    compareChartInst = new ChartJS(canvas.getContext("2d")!, {
+      type: "bar",
+      data: {
+        labels: YEARS.map(String),
+        datasets: Object.entries(REGIONS)
+          .filter(([k]) => !dimmed[k])
+          .map(([k, v]) => ({
+            label: v.name,
+            data: YEARS.map((y) => DATA[k][y]),
+            backgroundColor: v.color,
+            borderRadius: 3,
+          })),
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: ttOpts },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: TEXT_C, font: { size: 11 } },
+          },
+          y: {
+            grid: { color: GRID_C },
+            ticks: {
+              color: TEXT_C,
+              font: { size: 10 },
+              callback: (v: number) => v + " TWh",
+            },
+            min: 0,
+            max: 500,
+          },
+        },
+        onClick(_e: any, els: any[]) {
+          if (els.length) setYear(YEARS[els[0].index]);
+        },
+      },
+    });
+  }
+
+  function rebuildCharts() {
+    rebuildTrendChart();
+    rebuildCompareChart();
   }
 
   // ── Event listeners ────────────────────────────────────────────────────
@@ -757,21 +838,9 @@ async function runQ2Datacenter(): Promise<void> {
     .forEach((btn) =>
       btn.addEventListener("click", () => setYear(+btn.dataset.year!))
     );
-  document.getElementById("q2dc-btn-line")?.addEventListener("click", () => {
-    chartMode = "line";
-    document.getElementById("q2dc-btn-line")?.classList.add("on");
-    document.getElementById("q2dc-btn-bar")?.classList.remove("on");
-    rebuildChart();
-  });
-  document.getElementById("q2dc-btn-bar")?.addEventListener("click", () => {
-    chartMode = "bar";
-    document.getElementById("q2dc-btn-bar")?.classList.add("on");
-    document.getElementById("q2dc-btn-line")?.classList.remove("on");
-    rebuildChart();
-  });
 
   buildLegend();
-  rebuildChart();
+  rebuildCharts();
   d3.json(
     "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
   ).then((w: any) => {
@@ -790,35 +859,20 @@ async function runQ2Datacenter(): Promise<void> {
 
 type PointQ3 = { model: string; year: number; params: number; co2: number };
 
-/** Year ramp for scatter dots on #0f1117: brighter violet/blue than Viridis low end. */
-const interpolateYearOnDark = d3.piecewise(d3.interpolateHcl, [
-  "#c8b8ff",
-  "#52c4ff",
-  "#fde047",
-]);
-
 async function runQ3Correlation(): Promise<void> {
-  const mount = "#a3-q3";
+  const mount = "#final-q3";
   const root = document.querySelector<HTMLElement>(mount);
   if (!root) return;
   d3.select(mount).html(`
     <div class="mb-3 flex flex-wrap items-center justify-between gap-4">
       <div class="text-xs text-dim">Scroll/drag to zoom and pan. Double-click to reset.</div>
-      <div class="flex flex-wrap items-center gap-3 text-xs text-muted">
-        <button id="a3-q3-mode-all" type="button" class="px-2 py-1 rounded border border-rim text-soft bg-surface">All</button>
-        <button id="a3-q3-mode-year" type="button" class="px-2 py-1 rounded border border-rim text-muted">Year</button>
-        <button id="a3-q3-mode-facet" type="button" class="px-2 py-1 rounded border border-rim text-muted">By year (3×)</button>
-        <span id="a3-q3-year-controls" class="hidden">
-          <span class="inline-flex items-center gap-2">
-            <span>Year</span>
-            <input id="a3-q3-year-slider" type="range" min="2012" max="2025" step="1" value="2025" class="w-44 accent-[#a8edea]" />
-            <span id="a3-q3-year-label" class="text-soft font-medium tabular-nums">2025</span>
-          </span>
-        </span>
-      </div>
+      <span class="inline-flex items-center gap-2 text-xs text-muted">
+        <span>Year</span>
+        <input id="final-q3-year-slider" type="range" min="2012" max="2025" step="1" value="2025" class="w-44 accent-[#a8edea]" />
+        <span id="final-q3-year-label" class="text-soft font-medium tabular-nums">2025</span>
+      </span>
     </div>
-    <div id="a3-q3-panel-single"></div>
-    <div id="a3-q3-panel-facet" class="hidden grid grid-cols-3 gap-x-4 gap-y-6 w-full max-w-[1100px] mx-auto"></div>
+    <div id="final-q3-panel-single"></div>
   `);
 
   try {
@@ -839,8 +893,6 @@ async function runQ3Correlation(): Promise<void> {
 
     const data = raw.filter((r): r is PointQ3 => r != null);
     if (!data.length) return;
-
-    const YEARS_Q3 = d3.range(2012, 2026) as number[];
 
     const w = Math.max(640, root.clientWidth || 900);
     const h = 520;
@@ -866,11 +918,13 @@ async function runQ3Correlation(): Promise<void> {
       .range([ih, 0])
       .nice();
 
-    const color = d3
-      .scaleSequential(interpolateYearOnDark)
-      .domain(d3.extent(data, (d) => d.year) as [number, number]);
+    let activeYear = 2025;
+    const yearSlider = document.getElementById(
+      "final-q3-year-slider"
+    ) as HTMLInputElement | null;
+    const yearLabel = document.getElementById("final-q3-year-label");
 
-    const panelSingle = document.querySelector("#a3-q3-panel-single");
+    const panelSingle = document.querySelector("#final-q3-panel-single");
     if (!panelSingle) return;
     const svg = d3
       .select(panelSingle)
@@ -881,7 +935,20 @@ async function runQ3Correlation(): Promise<void> {
       .style("border", "1px solid #2e3448")
       .style("border-radius", "10px")
       .style("background", "#0f1117");
-    const clipId = `a3-q3-clip-${Date.now()}`;
+
+    const chartYearTitle = svg
+      .append("text")
+      .attr("id", "final-q3-chart-year")
+      .attr("x", w / 2)
+      .attr("y", 40)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#e8eaf0")
+      .attr("font-size", "36px")
+      .attr("font-weight", "600")
+      .attr("font-family", "Geist, system-ui, sans-serif")
+      .text(String(activeYear));
+
+    const clipId = `final-q3-clip-${Date.now()}`;
     svg
       .append("defs")
       .append("clipPath")
@@ -929,17 +996,22 @@ async function runQ3Correlation(): Promise<void> {
           .text("Training CO₂e (kg, log)")
       );
 
-    let viewMode: "all" | "year" | "facet" = "all";
-    let activeYear = 2025;
+    function setActiveYear(year: number) {
+      activeYear = year;
+      chartYearTitle.text(String(activeYear));
+      if (yearLabel) yearLabel.textContent = String(activeYear);
+      renderPoints();
+    }
+
     let xCurrent = xBase.copy();
     let yCurrent = yBase.copy();
     const dotsLayer = g.append("g").attr("clip-path", `url(#${clipId})`);
     const tip = d3
       .select("body")
-      .selectAll<HTMLDivElement, null>("div#a3-q3-tip")
+      .selectAll<HTMLDivElement, null>("div#final-q3-tip")
       .data([null])
       .join("div")
-      .attr("id", "a3-q3-tip")
+      .attr("id", "final-q3-tip")
       .style("position", "fixed")
       .style("pointer-events", "none")
       .style("z-index", "70")
@@ -967,187 +1039,6 @@ async function runQ3Correlation(): Promise<void> {
       return values;
     }
 
-    /** At most `max` ticks, spread across the log-scale tick list (facet panels). */
-    function limitLogTicks(values: number[], maxTicks: number): number[] {
-      if (values.length <= maxTicks) return values;
-      const n = values.length;
-      if (maxTicks < 2) return [values[0]!];
-      const out: number[] = [];
-      for (let i = 0; i < maxTicks; i += 1) {
-        const idx = Math.round((i * (n - 1)) / (maxTicks - 1));
-        out.push(values[idx]!);
-      }
-      return [...new Set(out)].sort((a, b) => a - b);
-    }
-
-    function renderFacet(): void {
-      const wrap = d3.select("#a3-q3-panel-facet");
-      wrap.selectAll("*").remove();
-
-      const facetClipUid = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-
-      /** Short SI ticks for small facet axes (params / kg CO₂e). */
-      const facetTick = (v: unknown) => {
-        const x = Number(v);
-        if (!(x > 0) || !Number.isFinite(x)) return "";
-        return d3.format(".0s")(x);
-      };
-
-      const facetAxisMaxTicks = 5;
-
-      const wrapW = w;
-      const gap = 16;
-      const cellOuterW = (wrapW - gap * 2) / 3;
-      const facetMargin = { top: 12, right: 6, bottom: 28, left: 42 };
-      const facetIw = Math.max(72, cellOuterW - facetMargin.left - facetMargin.right);
-      const facetIh = 160;
-
-      for (const year of YEARS_Q3) {
-        const cell = wrap
-          .append("div")
-          .attr(
-            "class",
-            "rounded-lg border border-surface overflow-hidden bg-[#0f1117] flex flex-col min-w-0"
-          );
-
-        cell
-          .append("div")
-          .attr(
-            "class",
-            "text-center text-[11px] font-medium text-soft tabular-nums py-1.5 border-b border-surface shrink-0"
-          )
-          .text(String(year));
-
-        const yearData = data.filter((d) => d.year === year);
-        const svgW = facetMargin.left + facetIw + facetMargin.right;
-        const svgH = facetMargin.top + facetIh + facetMargin.bottom;
-        const svgF = cell
-          .append("svg")
-          .attr("width", "100%")
-          .attr("height", svgH)
-          .attr("viewBox", `0 0 ${svgW} ${svgH}`)
-          .style("display", "block");
-
-        const clipIdF = `a3-q3-fc-${facetClipUid}-${year}`;
-        svgF
-          .append("defs")
-          .append("clipPath")
-          .attr("id", clipIdF)
-          .append("rect")
-          .attr("width", facetIw)
-          .attr("height", facetIh);
-
-        const gF = svgF
-          .append("g")
-          .attr(
-            "transform",
-            `translate(${facetMargin.left},${facetMargin.top})`
-          );
-
-        if (!yearData.length) {
-          gF.append("text")
-            .attr("x", facetIw / 2)
-            .attr("y", facetIh / 2)
-            .attr("text-anchor", "middle")
-            .attr("fill", "#576070")
-            .attr("font-size", "11px")
-            .text("No data");
-          continue;
-        }
-
-        const xf = xBase.copy().range([0, facetIw]);
-        const yf = yBase.copy().range([facetIh, 0]);
-        const xTicksF = limitLogTicks(
-          getLogTickValues(xf),
-          facetAxisMaxTicks
-        );
-        const yTicksF = limitLogTicks(
-          getLogTickValues(yf),
-          facetAxisMaxTicks
-        );
-
-        gF.append("g")
-          .attr("class", "grid")
-          .call(
-            d3
-              .axisLeft(yf)
-              .tickSize(-facetIw)
-              .tickValues(yTicksF)
-              .tickFormat(() => "")
-          )
-          .selectAll("line")
-          .attr("stroke", "#1e2130")
-          .attr("stroke-dasharray", "3 4");
-
-        gF.append("g")
-          .attr("class", "axis")
-          .attr("transform", `translate(0,${facetIh})`)
-          .call(
-            d3.axisBottom(xf).tickValues(xTicksF).tickFormat(facetTick)
-          )
-          .selectAll("text")
-          .attr("font-size", "9px");
-
-        gF.append("g")
-          .attr("class", "axis")
-          .call(d3.axisLeft(yf).tickValues(yTicksF).tickFormat(facetTick))
-          .selectAll("text")
-          .attr("font-size", "9px");
-
-        const dotsFg = gF
-          .append("g")
-          .attr("clip-path", `url(#${clipIdF})`);
-
-        dotsFg
-          .selectAll<SVGCircleElement, PointQ3>("circle")
-          .data(yearData)
-          .join("circle")
-          .attr("cx", (d) => xf(d.params))
-          .attr("cy", (d) => yf(d.co2))
-          .attr("r", 2.25)
-          .attr("fill", color(year))
-          .attr("stroke", "#0f1117")
-          .attr("stroke-width", 0.5)
-          .attr("opacity", 0.85)
-          .style("cursor", "pointer")
-          .on("mouseenter", function (event, d) {
-            d3.select(this)
-              .attr("stroke", "#ffffff")
-              .attr("stroke-width", 1.2)
-              .attr("r", 3.2);
-            tip.style("opacity", "1").html(
-              `<div style="font-weight:600;color:#e8eaf0;margin-bottom:4px;max-width:260px;">${
-                d.model
-              }</div>
-               <div style="display:flex;justify-content:space-between;gap:12px;color:#8b95a8;"><span>Year</span><span style="color:#c8cfd9;">${
-                 d.year
-               }</span></div>
-               <div style="display:flex;justify-content:space-between;gap:12px;color:#8b95a8;"><span>Parameters</span><span style="color:#a8edea;">${d3.format(
-                 ".3~s"
-               )(d.params)}</span></div>
-               <div style="display:flex;justify-content:space-between;gap:12px;color:#8b95a8;"><span>CO₂e</span><span style="color:#fed6e3;">${d3.format(
-                 ".3~s"
-               )(d.co2)} kg</span></div>`
-            );
-            tip
-              .style("left", `${event.clientX + 14}px`)
-              .style("top", `${event.clientY + 14}px`);
-          })
-          .on("mousemove", function (event) {
-            tip
-              .style("left", `${event.clientX + 14}px`)
-              .style("top", `${event.clientY + 14}px`);
-          })
-          .on("mouseleave", function () {
-            d3.select(this)
-              .attr("stroke", "#0f1117")
-              .attr("stroke-width", 0.5)
-              .attr("r", 2.25);
-            tip.style("opacity", "0");
-          });
-      }
-    }
-
     function drawGrid() {
       const yTicks = getLogTickValues(yCurrent);
       gridY
@@ -1164,10 +1055,7 @@ async function runQ3Correlation(): Promise<void> {
     }
 
     function renderPoints() {
-      const filtered =
-        viewMode === "year"
-          ? data.filter((d) => d.year === activeYear)
-          : data;
+      const filtered = data.filter((d) => d.year === activeYear);
       const dots = dotsLayer
         .selectAll<SVGCircleElement, PointQ3>("circle.dot")
         .data(
@@ -1182,10 +1070,10 @@ async function runQ3Correlation(): Promise<void> {
         .append("circle")
         .attr("class", "dot")
         .attr("r", 3.5)
-        .attr("fill", (d) => color(d.year))
+        .attr("fill", "#e8eaf0")
         .attr("stroke", "#0f1117")
         .attr("stroke-width", 0.6)
-        .attr("opacity", 0.72);
+        .attr("opacity", 0.85);
 
       enter
         .merge(dots as any)
@@ -1227,7 +1115,8 @@ async function runQ3Correlation(): Promise<void> {
           d3.select(this)
             .attr("stroke", "#0f1117")
             .attr("stroke-width", 0.6)
-            .attr("r", 3.5);
+            .attr("r", 3.5)
+            .attr("fill", "#e8eaf0");
           tip.style("opacity", "0");
         });
     }
@@ -1272,139 +1161,11 @@ async function runQ3Correlation(): Promise<void> {
         .call(zoomBehavior.transform, d3.zoomIdentity);
     });
 
-    const yearSlider = document.getElementById(
-      "a3-q3-year-slider"
-    ) as HTMLInputElement | null;
-    const yearLabel = document.getElementById("a3-q3-year-label");
-    const modeAllBtn = document.getElementById(
-      "a3-q3-mode-all"
-    ) as HTMLButtonElement | null;
-    const modeYearBtn = document.getElementById(
-      "a3-q3-mode-year"
-    ) as HTMLButtonElement | null;
-    const modeFacetBtn = document.getElementById(
-      "a3-q3-mode-facet"
-    ) as HTMLButtonElement | null;
-
-    function setPanels(): void {
-      const single = document.getElementById("a3-q3-panel-single");
-      const facet = document.getElementById("a3-q3-panel-facet");
-      const yc = document.getElementById("a3-q3-year-controls");
-      if (!single || !facet) return;
-      if (viewMode === "facet") {
-        single.classList.add("hidden");
-        facet.classList.remove("hidden");
-        if (yc) yc.className = "hidden";
-        renderFacet();
-      } else {
-        single.classList.remove("hidden");
-        facet.classList.add("hidden");
-        if (yc)
-          yc.className =
-            viewMode === "year"
-              ? "inline-flex items-center gap-2"
-              : "hidden";
-      }
-    }
-
-    function updateModeButtons(): void {
-      const on =
-        "px-2 py-1 rounded border border-rim text-soft bg-surface";
-      const off = "px-2 py-1 rounded border border-rim text-muted";
-      if (modeAllBtn)
-        modeAllBtn.className = viewMode === "all" ? on : off;
-      if (modeYearBtn)
-        modeYearBtn.className = viewMode === "year" ? on : off;
-      if (modeFacetBtn)
-        modeFacetBtn.className = viewMode === "facet" ? on : off;
-    }
-
-    modeAllBtn?.addEventListener("click", () => {
-      viewMode = "all";
-      setPanels();
-      updateModeButtons();
-      renderAxesAndPoints();
-    });
-
-    modeYearBtn?.addEventListener("click", () => {
-      viewMode = "year";
-      setPanels();
-      updateModeButtons();
-      renderAxesAndPoints();
-    });
-
-    modeFacetBtn?.addEventListener("click", () => {
-      viewMode = "facet";
-      setPanels();
-      updateModeButtons();
-    });
-
-    if (yearSlider && yearLabel) {
+    if (yearSlider) {
       yearSlider.addEventListener("input", () => {
-        activeYear = +yearSlider.value;
-        yearLabel.textContent = String(activeYear);
-        viewMode = "year";
-        setPanels();
-        updateModeButtons();
-        renderPoints();
+        setActiveYear(+yearSlider.value);
       });
     }
-
-    const legendW = 180;
-    const legendH = 14;
-    const lg = svg
-      .append("g")
-      .attr("transform", `translate(${w - margin.right - legendW}, 22)`);
-    const defs = svg.append("defs");
-    const gradId = "a3-q3-grad";
-    const grad = defs
-      .append("linearGradient")
-      .attr("id", gradId)
-      .attr("x1", "0%")
-      .attr("x2", "100%");
-    grad
-      .append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", interpolateYearOnDark(0));
-    grad
-      .append("stop")
-      .attr("offset", "33%")
-      .attr("stop-color", interpolateYearOnDark(0.33));
-    grad
-      .append("stop")
-      .attr("offset", "66%")
-      .attr("stop-color", interpolateYearOnDark(0.66));
-    grad
-      .append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", interpolateYearOnDark(1));
-    lg.append("rect")
-      .attr("width", legendW)
-      .attr("height", legendH)
-      .attr("rx", 4)
-      .attr("fill", `url(#${gradId})`);
-    lg.append("text")
-      .attr("x", 0)
-      .attr("y", -8)
-      .attr("fill", "#576070")
-      .attr("font-size", "10px")
-      .text("Year");
-    lg.append("text")
-      .attr("x", 0)
-      .attr("y", legendH + 14)
-      .attr("fill", "#576070")
-      .attr("font-size", "9px")
-      .text("2012");
-    lg.append("text")
-      .attr("x", legendW)
-      .attr("y", legendH + 14)
-      .attr("fill", "#576070")
-      .attr("font-size", "9px")
-      .attr("text-anchor", "end")
-      .text("2025");
-
-    setPanels();
-    updateModeButtons();
   } catch (e) {
     console.error(e);
     d3.select(mount)
@@ -1415,7 +1176,7 @@ async function runQ3Correlation(): Promise<void> {
 }
 
 function runQ4Calculator(): void {
-  if (!document.querySelector("#a3-q4-result")) return;
+  if (!document.querySelector("#final-q4-result")) return;
 
   const CO2_G: Record<string, Record<string, number>> = {
     chatgpt: { short: 0.4, medium: 1.5, long: 3.0 },
@@ -1464,8 +1225,8 @@ function runQ4Calculator(): void {
     });
   });
 
-  const freqInput = document.querySelector<HTMLInputElement>("#a3-q4-freq");
-  const freqVal = document.querySelector<HTMLElement>("#a3-q4-freq-val");
+  const freqInput = document.querySelector<HTMLInputElement>("#final-q4-freq");
+  const freqVal = document.querySelector<HTMLElement>("#final-q4-freq-val");
   freqInput?.addEventListener("input", () => {
     state.freq = +freqInput.value;
     if (freqVal) freqVal.textContent = String(state.freq);
@@ -1487,7 +1248,7 @@ function runQ4Calculator(): void {
         ? `${d3.format(".2~f")(annualG)} g`
         : `${d3.format(".2~f")(annualKg)} kg`;
 
-    d3.select("#a3-q4-result").html(`
+    d3.select("#final-q4-result").html(`
       <div class="flex flex-wrap gap-10 items-end py-2">
         <div>
           <p class="text-xs uppercase tracking-wider text-dim mb-1">Annual CO₂e</p>
@@ -1511,8 +1272,8 @@ function runQ4Calculator(): void {
   }
 
   function drawBar(carKm: number, color: string) {
-    d3.select("#a3-q4-chart").html("");
-    const root = document.querySelector<HTMLElement>("#a3-q4-chart")!;
+    d3.select("#final-q4-chart").html("");
+    const root = document.querySelector<HTMLElement>("#final-q4-chart")!;
     const w = Math.max(500, root.clientWidth || 800);
     const h = 100;
     const m = { top: 36, right: 32, bottom: 28, left: 32 };
@@ -1523,7 +1284,7 @@ function runQ4Calculator(): void {
     const x = d3.scaleLinear().domain([0, domainMax]).range([0, iw]);
 
     const svg = d3
-      .select("#a3-q4-chart")
+      .select("#final-q4-chart")
       .append("svg")
       .attr("viewBox", `0 0 ${w} ${h}`)
       .attr("width", "100%")
@@ -1585,7 +1346,7 @@ function runQ4Calculator(): void {
 }
 
 function runQ4Global(): void {
-  const mount = "#a3-q4-global";
+  const mount = "#final-q4-global";
   if (!document.querySelector(mount)) return;
 
   // assumptions
@@ -1625,10 +1386,10 @@ function runQ4Global(): void {
         <p class="text-3xl font-bold" style="color:#ff6b9d""> Earth ↔︎ Sun<span class="text-soft font-semibold"> × ${sunTimes}</span></p>
       </div>
     </div>
-    <div id="a3-q4-three-canvas" style="width:100%;border-radius:12px;overflow:hidden;"></div>
+    <div id="final-q4-three-canvas" style="width:100%;border-radius:12px;overflow:hidden;"></div>
     <p class="text-[10px] text-dim mt-2">drag to rotate</p>
   `);
 
-  const canvasContainer = document.getElementById("a3-q4-three-canvas")!;
+  const canvasContainer = document.getElementById("final-q4-three-canvas")!;
   initGlobalScene(canvasContainer, annualKm);
 }

@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HCDE 511 Skye & June</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -19,7 +24,7 @@
               body: "#e8eaf0",
             },
             fontFamily: {
-              sans: ['"Segoe UI"', "system-ui", "-apple-system", "sans-serif"],
+              sans: ['"Geist"', "system-ui", "-apple-system", "sans-serif"],
             },
           },
         },
@@ -28,7 +33,17 @@
     <script src="/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script>
+      if (window.Chart) {
+        Chart.defaults.font.family =
+          '"Geist", system-ui, -apple-system, sans-serif';
+      }
+    </script>
     <style>
+      body,
+      svg text {
+        font-family: "Geist", system-ui, -apple-system, sans-serif;
+      }
       .bar-bg {
         fill: #1e2130;
       }
