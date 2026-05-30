@@ -863,13 +863,25 @@ async function runQ3Correlation(): Promise<void> {
   const mount = "#final-q3";
   const root = document.querySelector<HTMLElement>(mount);
   if (!root) return;
+  const YEAR_MIN = 2012;
+  const YEAR_MAX = 2025;
+  const ANIM_YEARS = d3.range(YEAR_MIN, YEAR_MAX + 1);
+  const Q3_PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5 shrink-0" aria-hidden="true"><path d="M8 5.14v14.72a1 1 0 0 0 1.53.85l11.23-7.36a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14z"/></svg>`;
+  const Q3_PAUSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5 shrink-0" aria-hidden="true"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>`;
+
   d3.select(mount).html(`
     <div class="mb-3 flex flex-wrap items-center justify-between gap-4">
       <div class="text-xs text-dim">Scroll/drag to zoom and pan. Double-click to reset.</div>
-      <span class="inline-flex items-center gap-2 text-xs text-muted">
+      <span class="inline-flex flex-wrap items-center gap-2 text-xs text-muted">
         <span>Year</span>
-        <input id="final-q3-year-slider" type="range" min="2012" max="2025" step="1" value="2025" class="w-44 accent-[#a8edea]" />
-        <span id="final-q3-year-label" class="text-soft font-medium tabular-nums">2025</span>
+        <input id="final-q3-year-slider" type="range" min="${YEAR_MIN}" max="${YEAR_MAX}" step="1" value="${YEAR_MAX}" class="w-44 accent-[#a8edea]" />
+        <span id="final-q3-year-label" class="text-soft font-medium tabular-nums">${YEAR_MAX}</span>
+        <button
+          id="final-q3-animate-btn"
+          type="button"
+          aria-label="Animate chart by year"
+          class="ml-1 inline-flex items-center gap-1.5 rounded-md border border-[#2e3448] bg-[#1e2130] px-3 py-1 text-xs font-medium text-[#c8cfd9] transition-colors hover:border-[#3a4050] hover:bg-[#252836]"
+        >${Q3_PLAY_ICON}<span>Animate</span></button>
       </span>
     </div>
     <div id="final-q3-panel-single"></div>
@@ -918,11 +930,14 @@ async function runQ3Correlation(): Promise<void> {
       .range([ih, 0])
       .nice();
 
-    let activeYear = 2025;
+    let activeYear = YEAR_MAX;
+    let isAnimating = false;
+    let animTimer: ReturnType<typeof setTimeout> | null = null;
     const yearSlider = document.getElementById(
       "final-q3-year-slider"
     ) as HTMLInputElement | null;
     const yearLabel = document.getElementById("final-q3-year-label");
+    const animateBtn = document.getElementById("final-q3-animate-btn");
 
     const panelSingle = document.querySelector("#final-q3-panel-single");
     if (!panelSingle) return;
@@ -996,11 +1011,50 @@ async function runQ3Correlation(): Promise<void> {
           .text("Training CO₂e (kg, log)")
       );
 
-    function setActiveYear(year: number) {
+    function setActiveYear(year: number, animate = false) {
       activeYear = year;
       chartYearTitle.text(String(activeYear));
       if (yearLabel) yearLabel.textContent = String(activeYear);
-      renderPoints();
+      if (yearSlider) yearSlider.value = String(activeYear);
+      renderPoints(animate);
+    }
+
+    function setAnimateBtnLabel(playing: boolean) {
+      if (!animateBtn) return;
+      animateBtn.innerHTML = `${playing ? Q3_PAUSE_ICON : Q3_PLAY_ICON}<span>${playing ? "Stop" : "Animate"}</span>`;
+      animateBtn.setAttribute(
+        "aria-label",
+        playing ? "Stop year animation" : "Animate chart by year"
+      );
+    }
+
+    function stopYearAnimation() {
+      if (animTimer != null) {
+        clearTimeout(animTimer);
+        animTimer = null;
+      }
+      isAnimating = false;
+      animateBtn?.classList.remove("border-[#a8edea]", "text-[#a8edea]");
+      setAnimateBtnLabel(false);
+    }
+
+    function startYearAnimation() {
+      stopYearAnimation();
+      isAnimating = true;
+      animateBtn?.classList.add("border-[#a8edea]", "text-[#a8edea]");
+      setAnimateBtnLabel(true);
+
+      let idx = ANIM_YEARS.indexOf(activeYear);
+      if (idx < 0) idx = 0;
+
+      const step = () => {
+        if (!isAnimating) return;
+        setActiveYear(ANIM_YEARS[idx], true);
+        idx = (idx + 1) % ANIM_YEARS.length;
+        animTimer = setTimeout(step, 900);
+      };
+
+      step();
     }
 
     let xCurrent = xBase.copy();
@@ -1054,8 +1108,9 @@ async function runQ3Correlation(): Promise<void> {
         .attr("stroke-dasharray", "3 4");
     }
 
-    function renderPoints() {
+    function renderPoints(animate = false) {
       const filtered = data.filter((d) => d.year === activeYear);
+      const duration = animate ? 550 : 0;
       const dots = dotsLayer
         .selectAll<SVGCircleElement, PointQ3>("circle.dot")
         .data(
@@ -1063,22 +1118,34 @@ async function runQ3Correlation(): Promise<void> {
           (d: any) => `${d.model}-${d.year}-${d.params}-${d.co2}`
         );
 
-      dots.exit().remove();
+      dots
+        .exit()
+        .transition()
+        .duration(duration * 0.6)
+        .attr("opacity", 0)
+        .attr("r", 0)
+        .remove();
 
       const enter = dots
         .enter()
         .append("circle")
         .attr("class", "dot")
-        .attr("r", 3.5)
+        .attr("r", 0)
         .attr("fill", "#e8eaf0")
         .attr("stroke", "#0f1117")
         .attr("stroke-width", 0.6)
-        .attr("opacity", 0.85);
+        .attr("opacity", 0)
+        .attr("cx", (d) => xCurrent(d.params))
+        .attr("cy", (d) => yCurrent(d.co2));
 
       enter
         .merge(dots as any)
+        .transition()
+        .duration(duration)
         .attr("cx", (d) => xCurrent(d.params))
         .attr("cy", (d) => yCurrent(d.co2))
+        .attr("r", 3.5)
+        .attr("opacity", 0.85)
         .style("cursor", "pointer");
 
       dotsLayer
@@ -1163,9 +1230,15 @@ async function runQ3Correlation(): Promise<void> {
 
     if (yearSlider) {
       yearSlider.addEventListener("input", () => {
+        stopYearAnimation();
         setActiveYear(+yearSlider.value);
       });
     }
+
+    animateBtn?.addEventListener("click", () => {
+      if (isAnimating) stopYearAnimation();
+      else startYearAnimation();
+    });
   } catch (e) {
     console.error(e);
     d3.select(mount)
