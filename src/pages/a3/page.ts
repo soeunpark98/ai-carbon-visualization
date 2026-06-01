@@ -55,7 +55,7 @@ export function renderA3Main(): string {
           This interactive calculator helps users understand how their everyday AI usage adds up over time. Users can select an AI tool, adjust the number of daily queries, and choose different query lengths to estimate their annual CO2 emissions.
         </p>
         <p class="text-sm text-muted leading-relaxed max-w-3xl">
-          The global carbon footprint section at the bottom shows how small individual AI usage can scale up globally. For example, if 100 million users send 5 short ChatGPT queries every day, the annual carbon emissions would be equivalent to driving about 487 million km, which is roughly the same as traveling between Earth and the Sun <span class="text-soft font-semibold">3.3 times</span>.
+          The global carbon footprint section at the bottom shows how small individual AI usage can scale up globally. For example, if 100 million users send 5 short ChatGPT queries every day, the annual carbon emissions would be equivalent to driving about 487 million km, which is roughly the same as traveling between Earth and the Sun <span class="text-soft font-semibold">3 times</span>.
         </p>
       </div>
 
