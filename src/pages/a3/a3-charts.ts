@@ -1601,7 +1601,7 @@ function runQ4Global(): void {
   // cosmic reference (km)
   const SUN = 149_600_000;
 
-  const sunTimes = (annualKm / SUN).toFixed(1);
+  const sunTimes = String(Math.round(annualKm / SUN));
 
   d3.select(mount).html(`
     <p class="text-xs uppercase tracking-wider text-white mb-1">At global scale</p>
@@ -1621,8 +1621,9 @@ function runQ4Global(): void {
           annualKm / 1e6
         )} M km</p>
       </div>
-      <div class="self-end pb-0.5"> =
-        <p class="text-3xl font-bold" style="color:#ff6b9d""> Earth ↔︎ Sun<span class="text-soft font-semibold"> × ${sunTimes}</span></p>
+      <div>
+        <p class="text-sm text-soft mb-1">Trips from Earth → Sun</p>
+        <p class="text-3xl font-bold" style="color:#ff6b9d">${sunTimes}<span class="text-soft font-semibold">×</span></p>
       </div>
     </div>
     <div id="a3-q4-three-canvas" style="width:100%;border-radius:12px;overflow:hidden;"></div>

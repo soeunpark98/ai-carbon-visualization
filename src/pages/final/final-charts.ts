@@ -10,7 +10,37 @@ type RowQ1 = {
   isRef?: boolean;
 };
 
+function ensureFinalCardStyles(): void {
+  if (document.getElementById("q2dc-style")) return;
+  const s = document.createElement("style");
+  s.id = "q2dc-style";
+  s.textContent = `
+      .q2dc-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:1rem}
+      .q2dc-kpi{background:#1e2130;border-radius:8px;padding:.65rem 1rem}
+      .q2dc-kpi-label{font-size:11px;color:#576070;margin-bottom:3px}
+      .q2dc-kpi-val{font-size:18px;font-weight:500;color:#c8cfd9}
+      .q2dc-kpi-sub{font-size:10px;color:#3a4050;margin-top:1px}
+      .q2dc-card{background:#0f1117;border:0.5px solid #2e3448;border-radius:12px;padding:1.5rem 1.25rem;margin-bottom:1.5rem}
+      .q2dc-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+      .q2dc-sec-title{font-size:20px;font-weight:500;color:#fffff}
+      .q2dc-ytabs{display:flex;gap:3px}
+      .q2dc-ytab{font-size:11px;padding:3px 9px;border-radius:5px;border:0.5px solid #2e3448;cursor:pointer;background:transparent;color:#576070;transition:all .12s}
+      .q2dc-ytab.on{background:#1e2130;color:#c8cfd9;border-color:#3a4050}
+      .q2dc-legend-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:.6rem;font-size:11px;color:#576070}
+      .q2dc-leg{display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;transition:opacity .15s}
+      .q2dc-leg.dim{opacity:.3}
+      .q2dc-lsq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+      .q2dc-tt{position:absolute;background:#0f1117;border:0.5px solid #3a4050;border-radius:8px;padding:7px 11px;font-size:11px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:20;min-width:130px;white-space:nowrap;color:#c8cfd9}
+      .q2dc-tt-title{font-weight:500;font-size:12px;margin-bottom:4px;color:#c8cfd9}
+      .q2dc-tt-r{display:flex;justify-content:space-between;gap:14px;color:#576070}
+      .q2dc-tt-v{color:#c8cfd9;font-weight:500}
+      .q2dc-proj-label{font-size:10px;color:#3a4050;margin-top:5px;display:flex;align-items:center;gap:4px}
+    `;
+  document.head.appendChild(s);
+}
+
 export async function runFinalCharts(): Promise<void> {
+  ensureFinalCardStyles();
   await Promise.all([
     runQ1Comparative(),
     runQ2Datacenter(),
@@ -266,53 +296,26 @@ async function runQ2Datacenter(): Promise<void> {
   d3.select(lineMount).html("");
   d3.select(barMount).html("");
 
-  // ── CSS ────────────────────────────────────────────────────────────────
-  if (!document.getElementById("q2dc-style")) {
-    const s = document.createElement("style");
-    s.id = "q2dc-style";
-    s.textContent = `
-      .q2dc-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:1rem}
-      .q2dc-kpi{background:#1e2130;border-radius:8px;padding:.65rem 1rem}
-      .q2dc-kpi-label{font-size:11px;color:#576070;margin-bottom:3px}
-      .q2dc-kpi-val{font-size:18px;font-weight:500;color:#c8cfd9}
-      .q2dc-kpi-sub{font-size:10px;color:#3a4050;margin-top:1px}
-      .q2dc-card{background:#0f1117;border:0.5px solid #2e3448;border-radius:12px;padding:1.5rem 1.25rem;margin-bottom:1.5rem}
-      .q2dc-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
-      .q2dc-sec-title{font-size:16px;font-weight:500;color:#fffff}
-      .q2dc-ytabs{display:flex;gap:3px}
-      .q2dc-ytab{font-size:11px;padding:3px 9px;border-radius:5px;border:0.5px solid #2e3448;cursor:pointer;background:transparent;color:#576070;transition:all .12s}
-      .q2dc-ytab.on{background:#1e2130;color:#c8cfd9;border-color:#3a4050}
-      .q2dc-legend-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:.6rem;font-size:11px;color:#576070}
-      .q2dc-leg{display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;transition:opacity .15s}
-      .q2dc-leg.dim{opacity:.3}
-      .q2dc-lsq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
-      .q2dc-tt{position:absolute;background:#0f1117;border:0.5px solid #3a4050;border-radius:8px;padding:7px 11px;font-size:11px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:20;min-width:130px;white-space:nowrap;color:#c8cfd9}
-      .q2dc-tt-title{font-weight:500;font-size:12px;margin-bottom:4px;color:#c8cfd9}
-      .q2dc-tt-r{display:flex;justify-content:space-between;gap:14px;color:#576070}
-      .q2dc-tt-v{color:#c8cfd9;font-weight:500}
-      .q2dc-proj-label{font-size:10px;color:#3a4050;margin-top:5px;display:flex;align-items:center;gap:4px}
-    `;
-    document.head.appendChild(s);
-  }
+  ensureFinalCardStyles();
 
   // ── Data ───────────────────────────────────────────────────────────────
   const REGIONS: Record<
     string,
     { name: string; color: string; ids: number[] }
   > = {
-    us: { name: "United States", color: "#378ADD", ids: [840] },
+    us: { name: "United States", color: "#a8edea", ids: [840] },
     eu: {
       name: "Europe",
-      color: "#1D9E75",
+      color: "#c4b5fd",
       ids: [
         276, 250, 380, 724, 826, 56, 528, 756, 40, 752, 208, 246, 620, 372, 300,
         203, 616, 348, 642, 100, 191, 703, 705, 233, 428, 440,
       ],
     },
-    cn: { name: "China", color: "#D85A30", ids: [156] },
+    cn: { name: "China", color: "#d4b896", ids: [156] },
     ap: {
       name: "Asia Pacific",
-      color: "#7F77DD",
+      color: "#52b8e8",
       ids: [
         36, 50, 96, 104, 116, 356, 360, 392, 410, 418, 458, 496, 524, 554, 586,
         598, 608, 702, 704, 764,
@@ -325,7 +328,7 @@ async function runQ2Datacenter(): Promise<void> {
     cn: { 2020: 62, 2023: 84, 2024: 102, 2030: 277 },
     ap: { 2020: 93, 2023: 128, 2024: 150, 2030: 378 },
   };
-  const GLOBAL_COLOR = "#e879f9";
+  const GLOBAL_COLOR = "#ff6b9d";
   const GLOBAL_TREND: { x: number; y: number }[] = [
     { x: 2020, y: 269 },
     { x: 2024, y: 416 },
@@ -866,25 +869,63 @@ async function runQ3Correlation(): Promise<void> {
   const YEAR_MIN = 2012;
   const YEAR_MAX = 2025;
   const ANIM_YEARS = d3.range(YEAR_MIN, YEAR_MAX + 1);
-  const Q3_PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5 shrink-0" aria-hidden="true"><path d="M8 5.14v14.72a1 1 0 0 0 1.53.85l11.23-7.36a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14z"/></svg>`;
-  const Q3_PAUSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5 shrink-0" aria-hidden="true"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>`;
+  const Q3_DOT_COLOR = "#a8edea";
+  const Q3_PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4" aria-hidden="true"><path d="M8 5.14v14.72a1 1 0 0 0 1.53.85l11.23-7.36a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14z"/></svg>`;
+  const Q3_PAUSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4" aria-hidden="true"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>`;
+  const Q3_STOP_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>`;
+
+  if (!document.getElementById("final-q3-style")) {
+    const style = document.createElement("style");
+    style.id = "final-q3-style";
+    style.textContent = `
+      .final-q3-controls input[type="range"]{height:4px;border-radius:2px;background:#2e3448;appearance:none;-webkit-appearance:none}
+      .final-q3-controls input[type="range"]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#1a1d28;border:2px solid #c8cfd9;cursor:pointer}
+      .final-q3-controls input[type="range"]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#1a1d28;border:2px solid #c8cfd9;cursor:pointer}
+      .final-q3-play-btn,.final-q3-stop-btn{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:9999px;border:1px solid #2e3448;background:#1e2130;color:#c8cfd9;transition:background .15s,border-color .15s,color .15s}
+      .final-q3-play-btn:hover,.final-q3-stop-btn:hover:not(:disabled){background:#252836;border-color:#3a4050}
+      .final-q3-play-btn{width:36px;height:36px}
+      .final-q3-stop-btn{width:32px;height:32px}
+      .final-q3-stop-btn:disabled{opacity:.35;cursor:not-allowed}
+      .final-q3-stop-btn.is-active{border-color:#a8edea;color:#a8edea}
+    `;
+    document.head.appendChild(style);
+  }
 
   d3.select(mount).html(`
-    <div class="mb-3 flex flex-wrap items-center justify-between gap-4">
-      <div class="text-xs text-dim">Scroll/drag to zoom and pan. Double-click to reset.</div>
-      <span class="inline-flex flex-wrap items-center gap-2 text-xs text-muted">
-        <span>Year</span>
-        <input id="final-q3-year-slider" type="range" min="${YEAR_MIN}" max="${YEAR_MAX}" step="1" value="${YEAR_MAX}" class="w-44 accent-[#a8edea]" />
-        <span id="final-q3-year-label" class="text-soft font-medium tabular-nums">${YEAR_MAX}</span>
+    <div class="mb-3 text-xs text-dim">Scroll/drag to zoom and pan. Double-click to reset.</div>
+    <div id="final-q3-chart-wrap" class="overflow-hidden rounded-[10px] border border-[#2e3448] bg-[#0f1117]">
+      <div id="final-q3-panel-single"></div>
+      <div class="final-q3-controls flex items-center gap-3 border-t border-[#2e3448] px-4 py-3">
         <button
-          id="final-q3-animate-btn"
+          id="final-q3-play-btn"
           type="button"
-          aria-label="Animate chart by year"
-          class="ml-1 inline-flex items-center gap-1.5 rounded-md border border-[#2e3448] bg-[#1e2130] px-3 py-1 text-xs font-medium text-[#c8cfd9] transition-colors hover:border-[#3a4050] hover:bg-[#252836]"
-        >${Q3_PLAY_ICON}<span>Animate</span></button>
-      </span>
+          class="final-q3-play-btn"
+          aria-label="Play year animation"
+        >${Q3_PLAY_ICON}</button>
+        <button
+          id="final-q3-stop-btn"
+          type="button"
+          class="final-q3-stop-btn"
+          aria-label="Stop year animation"
+          disabled
+        >${Q3_STOP_ICON}</button>
+        <div class="relative min-w-0 flex-1 pt-5">
+          <span
+            id="final-q3-year-label"
+            class="pointer-events-none absolute top-0 -translate-x-1/2 text-xs font-semibold tabular-nums text-[#c8cfd9]"
+          >${YEAR_MIN}</span>
+          <input
+            id="final-q3-year-slider"
+            type="range"
+            min="${YEAR_MIN}"
+            max="${YEAR_MAX}"
+            step="1"
+            value="${YEAR_MIN}"
+            class="w-full"
+          />
+        </div>
+      </div>
     </div>
-    <div id="final-q3-panel-single"></div>
   `);
 
   try {
@@ -908,7 +949,7 @@ async function runQ3Correlation(): Promise<void> {
 
     const w = Math.max(640, root.clientWidth || 900);
     const h = 520;
-    const margin = { top: 64, right: 24, bottom: 52, left: 64 };
+    const margin = { top: 36, right: 24, bottom: 52, left: 64 };
     const iw = w - margin.left - margin.right;
     const ih = h - margin.top - margin.bottom;
 
@@ -930,14 +971,17 @@ async function runQ3Correlation(): Promise<void> {
       .range([ih, 0])
       .nice();
 
-    let activeYear = YEAR_MAX;
+    let activeYear = YEAR_MIN;
     let isAnimating = false;
     let animTimer: ReturnType<typeof setTimeout> | null = null;
     const yearSlider = document.getElementById(
       "final-q3-year-slider"
     ) as HTMLInputElement | null;
     const yearLabel = document.getElementById("final-q3-year-label");
-    const animateBtn = document.getElementById("final-q3-animate-btn");
+    const playBtn = document.getElementById("final-q3-play-btn");
+    const stopBtn = document.getElementById(
+      "final-q3-stop-btn"
+    ) as HTMLButtonElement | null;
 
     const panelSingle = document.querySelector("#final-q3-panel-single");
     if (!panelSingle) return;
@@ -947,21 +991,8 @@ async function runQ3Correlation(): Promise<void> {
       .attr("viewBox", `0 0 ${w} ${h}`)
       .attr("width", "100%")
       .attr("height", h)
-      .style("border", "1px solid #2e3448")
-      .style("border-radius", "10px")
+      .style("display", "block")
       .style("background", "#0f1117");
-
-    const chartYearTitle = svg
-      .append("text")
-      .attr("id", "final-q3-chart-year")
-      .attr("x", w / 2)
-      .attr("y", 40)
-      .attr("text-anchor", "middle")
-      .attr("fill", "#e8eaf0")
-      .attr("font-size", "36px")
-      .attr("font-weight", "600")
-      .attr("font-family", "Geist, system-ui, sans-serif")
-      .text(String(activeYear));
 
     const clipId = `final-q3-clip-${Date.now()}`;
     svg
@@ -977,6 +1008,21 @@ async function runQ3Correlation(): Promise<void> {
     const g = svg
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const bgYear = g
+      .append("text")
+      .attr("class", "final-q3-bg-year")
+      .attr("x", iw / 2)
+      .attr("y", ih / 2)
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .attr("fill", "#e8eaf0")
+      .attr("opacity", 0.1)
+      .attr("font-size", Math.round(Math.min(iw, ih) * 0.38))
+      .attr("font-weight", "700")
+      .attr("font-family", "Geist, system-ui, sans-serif")
+      .attr("pointer-events", "none")
+      .text(String(activeYear));
 
     const gridY = g.append("g").attr("class", "grid");
     const axisX = g
@@ -1011,21 +1057,37 @@ async function runQ3Correlation(): Promise<void> {
           .text("Training CO₂e (kg, log)")
       );
 
+    function updateSliderLabel() {
+      if (!yearSlider || !yearLabel) return;
+      const min = +yearSlider.min;
+      const max = +yearSlider.max;
+      const val = +yearSlider.value;
+      const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+      yearLabel.textContent = String(val);
+      yearLabel.style.left = `calc(${pct}% + ${((50 - pct) / 50) * 7}px)`;
+    }
+
     function setActiveYear(year: number, animate = false) {
       activeYear = year;
-      chartYearTitle.text(String(activeYear));
-      if (yearLabel) yearLabel.textContent = String(activeYear);
+      bgYear.text(String(activeYear));
       if (yearSlider) yearSlider.value = String(activeYear);
+      updateSliderLabel();
       renderPoints(animate);
     }
 
-    function setAnimateBtnLabel(playing: boolean) {
-      if (!animateBtn) return;
-      animateBtn.innerHTML = `${playing ? Q3_PAUSE_ICON : Q3_PLAY_ICON}<span>${playing ? "Stop" : "Animate"}</span>`;
-      animateBtn.setAttribute(
+    function setPlayBtnLabel(playing: boolean) {
+      if (!playBtn) return;
+      playBtn.innerHTML = playing ? Q3_PAUSE_ICON : Q3_PLAY_ICON;
+      playBtn.setAttribute(
         "aria-label",
-        playing ? "Stop year animation" : "Animate chart by year"
+        playing ? "Pause year animation" : "Play year animation"
       );
+    }
+
+    function setStopBtnActive(active: boolean) {
+      if (!stopBtn) return;
+      stopBtn.disabled = !active;
+      stopBtn.classList.toggle("is-active", active);
     }
 
     function stopYearAnimation() {
@@ -1034,23 +1096,27 @@ async function runQ3Correlation(): Promise<void> {
         animTimer = null;
       }
       isAnimating = false;
-      animateBtn?.classList.remove("border-[#a8edea]", "text-[#a8edea]");
-      setAnimateBtnLabel(false);
+      setPlayBtnLabel(false);
+      setStopBtnActive(false);
     }
 
-    function startYearAnimation() {
-      stopYearAnimation();
+    function startYearAnimation(fromStart = false) {
+      if (animTimer != null) {
+        clearTimeout(animTimer);
+        animTimer = null;
+      }
       isAnimating = true;
-      animateBtn?.classList.add("border-[#a8edea]", "text-[#a8edea]");
-      setAnimateBtnLabel(true);
+      setPlayBtnLabel(true);
+      setStopBtnActive(true);
 
-      let idx = ANIM_YEARS.indexOf(activeYear);
+      let idx = fromStart ? 0 : ANIM_YEARS.indexOf(activeYear);
       if (idx < 0) idx = 0;
 
       const step = () => {
         if (!isAnimating) return;
         setActiveYear(ANIM_YEARS[idx], true);
-        idx = (idx + 1) % ANIM_YEARS.length;
+        idx += 1;
+        if (idx >= ANIM_YEARS.length) idx = 0;
         animTimer = setTimeout(step, 900);
       };
 
@@ -1131,7 +1197,7 @@ async function runQ3Correlation(): Promise<void> {
         .append("circle")
         .attr("class", "dot")
         .attr("r", 0)
-        .attr("fill", "#e8eaf0")
+        .attr("fill", Q3_DOT_COLOR)
         .attr("stroke", "#0f1117")
         .attr("stroke-width", 0.6)
         .attr("opacity", 0)
@@ -1145,6 +1211,7 @@ async function runQ3Correlation(): Promise<void> {
         .attr("cx", (d) => xCurrent(d.params))
         .attr("cy", (d) => yCurrent(d.co2))
         .attr("r", 3.5)
+        .attr("fill", Q3_DOT_COLOR)
         .attr("opacity", 0.85)
         .style("cursor", "pointer");
 
@@ -1183,7 +1250,7 @@ async function runQ3Correlation(): Promise<void> {
             .attr("stroke", "#0f1117")
             .attr("stroke-width", 0.6)
             .attr("r", 3.5)
-            .attr("fill", "#e8eaf0");
+            .attr("fill", Q3_DOT_COLOR);
           tip.style("opacity", "0");
         });
     }
@@ -1235,10 +1302,18 @@ async function runQ3Correlation(): Promise<void> {
       });
     }
 
-    animateBtn?.addEventListener("click", () => {
+    playBtn?.addEventListener("click", () => {
       if (isAnimating) stopYearAnimation();
       else startYearAnimation();
     });
+
+    stopBtn?.addEventListener("click", () => {
+      if (isAnimating) stopYearAnimation();
+    });
+
+    setActiveYear(YEAR_MIN);
+    updateSliderLabel();
+    startYearAnimation(true);
   } catch (e) {
     console.error(e);
     d3.select(mount)
@@ -1258,25 +1333,23 @@ function runQ4Calculator(): void {
   };
   const CAR_G_PER_KM = 150;
 
-  const TOOL_COLOR: Record<string, string> = {
-    chatgpt: "#ff6b9d",
-    gemini: "#a8edea",
-    claude: "#c4b5fd",
-  };
-
   const state = { tool: "chatgpt", len: "medium", freq: 10 };
+  const Q4_SELECT_COLOR = "#a8edea";
+  const Q4_RESULT_COLOR = "#ff6b9d";
 
   function setActive(
     selector: string,
     activeDataAttr: string,
-    value: string,
-    color: string
+    value: string
   ) {
     document.querySelectorAll<HTMLButtonElement>(selector).forEach((btn) => {
       const isActive = btn.dataset[activeDataAttr] === value;
-      btn.style.background = isActive ? color : "";
-      btn.style.color = isActive ? "#0f1117" : "";
-      btn.style.borderColor = isActive ? color : "";
+      btn.style.background = "";
+      btn.style.borderColor = isActive ? Q4_SELECT_COLOR : "";
+      btn.style.color = isActive ? Q4_SELECT_COLOR : "";
+      btn.querySelectorAll("span").forEach((span) => {
+        span.style.color = isActive ? Q4_SELECT_COLOR : "";
+      });
     });
   }
 
@@ -1285,7 +1358,7 @@ function runQ4Calculator(): void {
     .forEach((btn) => {
       btn.addEventListener("click", () => {
         state.tool = btn.dataset.tool!;
-        setActive(".q4-tool-btn", "tool", state.tool, TOOL_COLOR[state.tool]);
+        setActive(".q4-tool-btn", "tool", state.tool);
         update();
       });
     });
@@ -1293,7 +1366,7 @@ function runQ4Calculator(): void {
   document.querySelectorAll<HTMLButtonElement>(".q4-len-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       state.len = btn.dataset.len!;
-      setActive(".q4-len-btn", "len", state.len, TOOL_COLOR[state.tool]);
+      setActive(".q4-len-btn", "len", state.len);
       update();
     });
   });
@@ -1307,9 +1380,8 @@ function runQ4Calculator(): void {
   });
 
   function update() {
-    const color = TOOL_COLOR[state.tool];
-    setActive(".q4-tool-btn", "tool", state.tool, color);
-    setActive(".q4-len-btn", "len", state.len, color);
+    setActive(".q4-tool-btn", "tool", state.tool);
+    setActive(".q4-len-btn", "len", state.len);
 
     const co2PerQuery = CO2_G[state.tool]?.[state.len] ?? 1;
     const annualG = co2PerQuery * state.freq * 365;
@@ -1322,38 +1394,40 @@ function runQ4Calculator(): void {
         : `${d3.format(".2~f")(annualKg)} kg`;
 
     d3.select("#final-q4-result").html(`
-      <div class="flex flex-wrap gap-10 items-end py-2">
-        <div>
-          <p class="text-xs uppercase tracking-wider text-dim mb-1">Annual CO₂e</p>
-          <p class="text-4xl font-bold tabular-nums" style="color:${color}">${kgLabel}</p>
+      <div class="space-y-5">
+        <p class="text-sm font-medium text-[#c8cfd9]">Your estimated annual impact</p>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border border-[#2e3448] bg-[#1a1d28]/40 px-5 py-4">
+            <p class="mb-2 text-sm text-[#8b95a8]">Annual CO₂e</p>
+            <p class="text-4xl font-bold leading-none tabular-nums text-gray-400 sm:text-5xl">${kgLabel}</p>
+          </div>
+          <div class="rounded-lg border border-[#2e3448] bg-[#1a1d28]/40 px-5 py-4">
+            <p class="mb-2 text-sm text-[#8b95a8]">≈ driving a car</p>
+            <p class="text-4xl font-bold leading-none tabular-nums sm:text-5xl" style="color:${Q4_RESULT_COLOR}">${d3.format(
+              ",.0f"
+            )(carKm)}<span class="ml-1 text-2xl font-semibold sm:text-3xl">km</span></p>
+          </div>
         </div>
-        <div>
-          <p class="text-xs uppercase tracking-wider text-dim mb-1">≈ driving a car</p>
-          <p class="text-4xl font-bold text-soft tabular-nums">${d3.format(
-            ",.0f"
-          )(carKm)} km</p>
-        </div>
-        <p class="text-xs text-dim self-end pb-1">
-          ${d3.format(".3~g")(co2PerQuery)} g/query × ${
-      state.freq
-    }/day × 365 days
+        <p class="text-center text-xs leading-relaxed text-[#576070]">
+          ${d3.format(".3~g")(co2PerQuery)} g per query × ${state.freq} per day × 365 days
         </p>
       </div>
     `);
 
-    drawBar(carKm, color);
+    drawBar(carKm);
   }
 
-  function drawBar(carKm: number, color: string) {
+  function drawBar(carKm: number) {
+    const color = Q4_RESULT_COLOR;
     d3.select("#final-q4-chart").html("");
     const root = document.querySelector<HTMLElement>("#final-q4-chart")!;
     const w = Math.max(500, root.clientWidth || 800);
-    const h = 100;
-    const m = { top: 36, right: 32, bottom: 28, left: 32 };
+    const h = 104;
+    const m = { top: 28, right: 16, bottom: 20, left: 16 };
     const iw = w - m.left - m.right;
 
-    const refs = [100, 250, 500];
-    const domainMax = Math.max(carKm * 1.5, 550);
+    const refs = [100, 250, 400];
+    const domainMax = Math.max(carKm * 1.15, 400);
     const x = d3.scaleLinear().domain([0, domainMax]).range([0, iw]);
 
     const svg = d3
@@ -1361,7 +1435,10 @@ function runQ4Calculator(): void {
       .append("svg")
       .attr("viewBox", `0 0 ${w} ${h}`)
       .attr("width", "100%")
-      .attr("height", h);
+      .attr("height", "100%")
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .style("display", "block")
+      .style("max-height", "100%");
     const g = svg
       .append("g")
       .attr("transform", `translate(${m.left},${m.top})`);
@@ -1403,16 +1480,41 @@ function runQ4Calculator(): void {
         .text(`${d3.format("~s")(km)} km`);
     });
 
-    // user label
     const ux = Math.min(x(carKm), iw);
-    g.append("text")
-      .attr("x", ux)
-      .attr("y", 32)
-      .attr("text-anchor", ux > iw * 0.75 ? "end" : "middle")
+    const kmStr = `${d3.format(",.0f")(carKm)} km`;
+    const iconSize = 20;
+    const stackGap = 4;
+    const stackTop = 22;
+
+    const labelG = g.append("g").attr("class", "q4-bar-label");
+
+    labelG
+      .append("g")
+      .attr(
+        "transform",
+        `translate(${iconSize / 2}, ${stackTop}) scale(${iconSize / 24}) translate(-12, 0)`
+      )
+      .append("path")
+      .attr(
+        "d",
+        "M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"
+      )
+      .attr("fill", color);
+
+    labelG
+      .append("text")
+      .attr("x", iconSize / 2)
+      .attr("y", stackTop + iconSize + stackGap + 10)
+      .attr("text-anchor", "middle")
       .attr("fill", color)
       .attr("font-size", "11px")
       .attr("font-weight", "600")
-      .text(`you: ${d3.format(",.0f")(carKm)} km`);
+      .text(kmStr);
+
+    const bbox = (labelG.node() as SVGGElement).getBBox();
+    let dx = ux - bbox.width / 2;
+    if (ux > iw * 0.75) dx = ux - bbox.width;
+    labelG.attr("transform", `translate(${Math.max(0, dx)}, 0)`);
   }
 
   update();
@@ -1435,32 +1537,44 @@ function runQ4Global(): void {
   // cosmic reference (km)
   const SUN = 149_600_000;
 
-  const sunTimes = (annualKm / SUN).toFixed(1);
+  const sunTimes = String(Math.round(annualKm / SUN));
+
+  const annualTonnes = d3.format(",.0f")(annualG / 1e9);
+  const annualKmM = d3.format(",.0f")(annualKm / 1e6);
 
   d3.select(mount).html(`
-    <p class="text-xs uppercase tracking-wider text-white mb-1">At global scale</p>
-    <p class="text-lg text-gray-500 mb-4">
-      <span class="text-white font-semibold">100M</span> daily users · <span class="text-soft font-semibold">5</span> short queries/day · <span class="text-soft font-semibold">0.4g</span> CO₂e per query (ChatGPT)
-    </p>
-    <div class="flex flex-wrap gap-10 mb-6">
-      <div>
-        <p class="text-sm text-soft mb-1">Annual CO₂e</p>
-        <p class="text-3xl font-bold text-soft">${d3.format(",.0f")(
-          annualG / 1e9
-        )} M tonnes</p>
-      </div>
-      <div>
-        <p class="text-sm text-soft mb-1">≈ driving a car</p>
-        <p class="text-3xl font-bold" style="color:#ff6b9d">${d3.format(",.0f")(
-          annualKm / 1e6
-        )} M km</p>
-      </div>
-      <div class="self-end pb-0.5"> =
-        <p class="text-3xl font-bold" style="color:#ff6b9d""> Earth ↔︎ Sun<span class="text-soft font-semibold"> × ${sunTimes}</span></p>
+    <div class="mb-5 max-w-3xl space-y-2">
+      <p class="text-lg font-medium leading-snug text-[#e8eaf0]">Imagine this every day</p>
+      <p class="flex flex-wrap items-baseline gap-x-2 gap-y-0 leading-tight">
+        <span class="text-[clamp(2.25rem,5.5vw,3.5rem)] font-bold tabular-nums text-[#ff6b9d]">100M</span>
+        <span class="text-lg font-medium text-[#e8eaf0] sm:text-xl">users</span>
+        <span class="px-1 text-base text-[#576070]">each send</span>
+        <span class="text-[clamp(2.25rem,5.5vw,3.5rem)] font-bold tabular-nums text-[#ff6b9d]">5</span>
+        <span class="text-lg font-medium text-[#e8eaf0] sm:text-xl">short ChatGPT queries</span>
+      </p>
+    </div>
+
+    <div id="final-q4-three-canvas" class="relative mb-8 w-full overflow-hidden rounded-xl bg-[#1a1d28]/30" style="min-height:300px">
+      <p class="pointer-events-none absolute bottom-3 right-4 z-10 text-[10px] text-dim">drag to rotate</p>
+    </div>
+
+    <div class="pt-2">
+      <p class="mb-3 text-lg font-medium leading-snug text-[#e8eaf0]">That compounds annually to</p>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-lg border border-[#2e3448] bg-[#1a1d28]/40 px-5 py-4">
+          <p class="mb-2 text-sm text-[#8b95a8]">Annual CO₂e</p>
+          <p class="text-3xl font-bold leading-none tabular-nums text-gray-400 sm:text-4xl">${annualTonnes}<span class="ml-1 text-xl font-semibold text-[#8b95a8] sm:text-2xl">M tonnes</span></p>
+        </div>
+        <div class="rounded-lg border border-[#2e3448] bg-[#1a1d28]/40 px-5 py-4">
+          <p class="mb-2 text-sm text-[#8b95a8]">≈ driving a car</p>
+          <p class="text-3xl font-bold leading-none tabular-nums text-[#ff6b9d] sm:text-4xl">${annualKmM}<span class="ml-1 text-xl font-semibold text-[#8b95a8] sm:text-2xl">M km</span></p>
+        </div>
+        <div class="rounded-lg border border-[#2e3448] bg-[#1a1d28]/40 px-5 py-4">
+          <p class="mb-2 text-sm text-[#8b95a8]">Trips from Earth → Sun</p>
+          <p class="text-3xl font-bold leading-none tabular-nums text-[#ff6b9d] sm:text-4xl">${sunTimes}<span class="ml-1.5 text-xl font-semibold text-[#8b95a8] sm:text-2xl">×</span></p>
+        </div>
       </div>
     </div>
-    <div id="final-q4-three-canvas" style="width:100%;border-radius:12px;overflow:hidden;"></div>
-    <p class="text-[10px] text-dim mt-2">drag to rotate</p>
   `);
 
   const canvasContainer = document.getElementById("final-q4-three-canvas")!;
